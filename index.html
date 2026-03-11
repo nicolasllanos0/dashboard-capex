@@ -110,10 +110,8 @@ body{background:#F4F6F9;color:#1A1A2E}
 <div class="tabs">
   <div class="tab active" onclick="showTab('resumen')">&#128202; Resumen</div>
   <div class="tab" onclick="showTab('tendencia')">&#128200; Tendencia Mensual</div>
-  <div class="tab" onclick="showTab('tipo_capex')">&#128230; Por Tipo Capex</div>
   <div class="tab" onclick="showTab('formato')">&#127968; Por Formato</div>
   <div class="tab" onclick="showTab('equipo')">&#128101; Por Equipo</div>
-  <div class="tab" onclick="showTab('tipo')">&#128736; Por TIPO</div>
   <div class="tab" onclick="showTab('fcst_vs_ant')">&#128260; FCST vs Anterior</div>
   <div class="tab" onclick="showTab('equipos_full')">&#128101; Equipos Detalle</div>
 </div>
@@ -169,8 +167,8 @@ body{background:#F4F6F9;color:#1A1A2E}
   <div class="chart-container" style="margin-top:16px">
     <div class="chart-title">&#128200; A&ntilde;o Completo por Formato &mdash; AOP vs FCST (M CLP)</div>
     <div class="bar-legend">
-      <div class="bl-item"><div class="bl-sq" style="background:#003F87"></div> AOP FINAL</div>
-      <div class="bl-item"><div class="bl-sq" style="background:#FFC220"></div> FCST FEBRERO</div>
+      <div class="bl-item"><div class="bl-sq" style="background:#003F87"></div> <span id="res-lbl-aop"></span></div>
+      <div class="bl-item"><div class="bl-sq" style="background:#FFC220"></div> <span id="res-lbl-fcst"></span></div>
     </div>
     <div class="bar-chart" id="bar_formato"></div>
   </div>
@@ -181,11 +179,11 @@ body{background:#F4F6F9;color:#1A1A2E}
 
   <div class="periodo-legend" style="margin-bottom:16px">
     <div class="pl-item"><div class="pl-dot" style="background:#003F87"></div>
-      <div><span class="pl-text">AOP FINAL</span><span class="pl-sub"> (Plan anual)</span></div></div>
+      <div><span class="pl-text" id="tend-lbl-aop"></span><span class="pl-sub"> (Plan anual)</span></div></div>
     <div class="pl-item"><div class="pl-dot" style="background:#FFC220"></div>
-      <div><span class="pl-text">FCST FEBRERO</span><span class="pl-sub"> (Forecast actualizado)</span></div></div>
+      <div><span class="pl-text" id="tend-lbl-fcst"></span><span class="pl-sub"> (Forecast actualizado)</span></div></div>
     <div class="pl-item"><div class="pl-dot" style="background:#FF6B6B"></div>
-      <div><span class="pl-text">Desvio</span><span class="pl-sub"> (FCST - AOP)</span></div></div>
+      <div><span class="pl-text">Desv&iacute;o</span><span class="pl-sub"> (FCST &minus; AOP)</span></div></div>
   </div>
 
   <div class="chart-container">
@@ -250,26 +248,15 @@ body{background:#F4F6F9;color:#1A1A2E}
 
 </div>
 
-<!-- ===== POR TIPO CAPEX ===== -->
-<div id="tab-tipo_capex" class="tab-content">
-  <div class="chart-container">
-    <div class="chart-title">Por Tipo Capex &mdash; AOP vs FCST &mdash; A&ntilde;o Completo (M CLP)</div>
-    <div class="bar-legend">
-      <div class="bl-item"><div class="bl-sq" style="background:#003F87"></div> AOP FINAL</div>
-      <div class="bl-item"><div class="bl-sq" style="background:#FFC220"></div> FCST FEBRERO</div>
-    </div>
-    <div class="bar-chart" id="bar_tc_full"></div>
-  </div>
-  <div class="table-wrap"><table class="pivot-table" id="tbl_tipo_capex"></table></div>
-</div>
+
 
 <!-- ===== POR FORMATO ===== -->
 <div id="tab-formato" class="tab-content">
   <div class="chart-container">
-    <div class="chart-title">Por Formato &mdash; AOP vs FCST &mdash; A&ntilde;o Completo (M CLP)</div>
+    <div class="chart-title" id="fmt-chart-title">Por Formato &mdash; AOP vs FCST &mdash; A&ntilde;o Completo (M CLP)</div>
     <div class="bar-legend">
-      <div class="bl-item"><div class="bl-sq" style="background:#003F87"></div> AOP FINAL</div>
-      <div class="bl-item"><div class="bl-sq" style="background:#FFC220"></div> FCST FEBRERO</div>
+      <div class="bl-item"><div class="bl-sq" style="background:#003F87"></div> <span id="fmt-lbl-aop"></span></div>
+      <div class="bl-item"><div class="bl-sq" style="background:#FFC220"></div> <span id="fmt-lbl-fcst"></span></div>
     </div>
     <div class="bar-chart" id="bar_fmt_full"></div>
   </div>
@@ -279,28 +266,17 @@ body{background:#F4F6F9;color:#1A1A2E}
 <!-- ===== POR EQUIPO ===== -->
 <div id="tab-equipo" class="tab-content">
   <div class="chart-container">
-    <div class="chart-title">Por Equipo &mdash; AOP vs FCST &mdash; A&ntilde;o Completo (M CLP)</div>
+    <div class="chart-title" id="eq-chart-title">Por Equipo &mdash; AOP vs FCST &mdash; A&ntilde;o Completo (M CLP)</div>
     <div class="bar-legend">
-      <div class="bl-item"><div class="bl-sq" style="background:#003F87"></div> AOP FINAL</div>
-      <div class="bl-item"><div class="bl-sq" style="background:#FFC220"></div> FCST FEBRERO</div>
+      <div class="bl-item"><div class="bl-sq" style="background:#003F87"></div> <span id="eq-lbl-aop-tab"></span></div>
+      <div class="bl-item"><div class="bl-sq" style="background:#FFC220"></div> <span id="eq-lbl-fcst-tab"></span></div>
     </div>
     <div class="bar-chart" id="bar_eq_full"></div>
   </div>
   <div class="table-wrap"><table class="pivot-table" id="tbl_equipo"></table></div>
 </div>
 
-<!-- ===== POR TIPO ===== -->
-<div id="tab-tipo" class="tab-content">
-  <div class="chart-container">
-    <div class="chart-title">Por TIPO &mdash; AOP vs FCST &mdash; A&ntilde;o Completo (M CLP)</div>
-    <div class="bar-legend">
-      <div class="bl-item"><div class="bl-sq" style="background:#003F87"></div> AOP FINAL</div>
-      <div class="bl-item"><div class="bl-sq" style="background:#FFC220"></div> FCST FEBRERO</div>
-    </div>
-    <div class="bar-chart" id="bar_tipo_full"></div>
-  </div>
-  <div class="table-wrap"><table class="pivot-table" id="tbl_tipo"></table></div>
-</div>
+
 
 <!-- ===== FCST VS ANTERIOR ===== -->
 <div id="tab-fcst_vs_ant" class="tab-content">
@@ -366,19 +342,11 @@ body{background:#F4F6F9;color:#1A1A2E}
 <!-- ===== EQUIPOS DETALLE ===== -->
 <div id="tab-equipos_full" class="tab-content">
   <div class="chart-container">
-    <div class="chart-title">&#128101; Detalle por Equipo &mdash; AOP / FCST Anterior / FCST Actual &mdash; Todos los Periodos</div>
+    <div class="chart-title">&#128101; Detalle por Equipo &mdash; Todos los Periodos</div>
 
-    <!-- Selector periodo -->
-    <div style="margin-bottom:14px;display:flex;gap:8px;align-items:center">
-      <span style="font-size:.82rem;color:#555;font-weight:600">Ver periodo:</span>
-      <button class="toggle-btn active" onclick="setEqPeriod('full',this)">A&ntilde;o Completo</button>
-      <button class="toggle-btn" onclick="setEqPeriod('ytd',this)">YTD</button>
-      <button class="toggle-btn" onclick="setEqPeriod('fwd',this)">FWD</button>
-    </div>
-
-    <!-- Barras EQUIPO (3 barras: AOP / ANT / ACT) -->
-    <div id="eq-bar-chart" class="bar-chart" style="margin-bottom:16px"></div>
-    <div class="bar-legend" style="margin-bottom:12px">
+    <!-- Barras AOP / ANT / ACT (Año Completo) -->
+    <div id="eq-bar-chart" class="bar-chart" style="margin-bottom:8px"></div>
+    <div class="bar-legend" style="margin-bottom:16px">
       <div class="bl-item"><div class="bl-sq" style="background:#003F87"></div> <span id="eq-lbl-aop"></span></div>
       <div class="bl-item"><div class="bl-sq" style="background:#9EADC8"></div> <span id="eq-lbl-ant"></span></div>
       <div class="bl-item"><div class="bl-sq" style="background:#FFC220"></div> <span id="eq-lbl-act"></span></div>
@@ -389,18 +357,29 @@ body{background:#F4F6F9;color:#1A1A2E}
         <thead>
           <tr>
             <th rowspan="2" class="dim-hdr">Equipo</th>
-            <th colspan="3" class="ph-ytd" style="background:#002244">A&ntilde;o Completo (M)</th>
-            <th colspan="2" style="background:#1565C0;color:#fff">vs AOP</th>
-            <th colspan="2" style="background:#004d40;color:#fff">vs FCST Anterior</th>
+            <th colspan="5" class="ph-ytd" id="eq-hdr-ytd">YTD</th>
+            <th colspan="5" class="ph-fwd" id="eq-hdr-fwd">FWD</th>
+            <th colspan="5" class="ph-full">A&ntilde;o Completo</th>
           </tr>
           <tr>
-            <th style="background:#002D62;color:#FFC220">AOP</th>
-            <th style="background:#4a5a78;color:#fff" id="eq-th-ant2"></th>
-            <th style="background:#BF8A00;color:#fff" id="eq-th-act2"></th>
-            <th style="background:#1565C0;color:#fff">Desv. M</th>
-            <th style="background:#1565C0;color:#fff">Desv. %</th>
-            <th style="background:#004d40;color:#fff">Var. M</th>
-            <th style="background:#004d40;color:#fff">Var. %</th>
+            <!-- YTD -->
+            <th style="background:#1565C0;color:#fff">AOP</th>
+            <th style="background:#4a5a78;color:#fff" id="eq-th-ant-ytd"></th>
+            <th style="background:#BF8A00;color:#fff" id="eq-th-act-ytd"></th>
+            <th style="background:#1565C0;color:#fff">vs AOP</th>
+            <th style="background:#004d40;color:#fff">vs Ant</th>
+            <!-- FWD -->
+            <th style="background:#003F87;color:#FFC220">AOP</th>
+            <th style="background:#4a5a78;color:#fff" id="eq-th-ant-fwd"></th>
+            <th style="background:#BF8A00;color:#fff" id="eq-th-act-fwd"></th>
+            <th style="background:#003F87;color:#FFC220">vs AOP</th>
+            <th style="background:#004d40;color:#fff">vs Ant</th>
+            <!-- FULL -->
+            <th style="background:#002244;color:#FFC220">AOP</th>
+            <th style="background:#4a5a78;color:#fff" id="eq-th-ant-full"></th>
+            <th style="background:#BF8A00;color:#fff" id="eq-th-act-full"></th>
+            <th style="background:#002244;color:#FFC220">vs AOP</th>
+            <th style="background:#004d40;color:#fff">vs Ant</th>
           </tr>
         </thead>
         <tbody id="eq-tbody"></tbody>
@@ -479,22 +458,32 @@ function buildBarChart(containerId, data, valKey_aop, valKey_fcst, labelKey){
   el.innerHTML = html;
 }
 
+// Inicializar labels dinámicos
+document.querySelectorAll('.chart-title').forEach(el=>{
+  if(el.id==='fmt-chart-title') el.textContent=`Por Formato \u2014 ${D.sel_aop} vs ${D.sel_fcst} \u2014 A\u00f1o Completo (M CLP)`;
+  if(el.id==='eq-chart-title')  el.textContent=`Por Equipo \u2014 ${D.sel_aop} vs ${D.sel_fcst} \u2014 A\u00f1o Completo (M CLP)`;
+});
+['fmt-lbl-aop','eq-lbl-aop-tab','res-lbl-aop','tend-lbl-aop'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=D.sel_aop; });
+['fmt-lbl-fcst','eq-lbl-fcst-tab','res-lbl-fcst','tend-lbl-fcst'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=D.sel_fcst; });
+
 buildBarChart('bar_tipo_capex', D.tipo_capex, 'aop_full','fcst_full','cat');
 buildBarChart('bar_formato',    D.formato,    'aop_full','fcst_full','cat');
-buildBarChart('bar_tc_full',    D.tipo_capex, 'aop_full','fcst_full','cat');
 buildBarChart('bar_fmt_full',   D.formato,    'aop_full','fcst_full','cat');
 buildBarChart('bar_eq_full',    D.equipo,     'aop_full','fcst_full','cat');
-buildBarChart('bar_tipo_full',  D.tipo,       'aop_full','fcst_full','cat');
 
-// ---- Pivot table ----
+// ---- Pivot table (labels dinámicos de periodos) ----
 function buildPivotTable(tableId, data, dimLabel){
   const tbl = document.getElementById(tableId);
   if(!tbl) return;
+  const ytdLbl = D.meses_ytd.length ? 'YTD \u2014 ' + D.meses_ytd.join(' / ') : 'YTD';
+  const fwdLbl = D.meses_fwd.length
+    ? 'Resto \u2014 ' + D.meses_fwd[0] + (D.meses_fwd.length>1?' \u2192 '+D.meses_fwd[D.meses_fwd.length-1]:'')
+    : 'FWD';
   let html = `<thead>
     <tr>
       <th class="dim-hdr" rowspan="2">${dimLabel}</th>
-      <th colspan="4" class="ph-ytd">YTD &mdash; Enero</th>
-      <th colspan="4" class="ph-fwd">Resto &mdash; Feb a Dic</th>
+      <th colspan="4" class="ph-ytd">${ytdLbl}</th>
+      <th colspan="4" class="ph-fwd">${fwdLbl}</th>
       <th colspan="4" class="ph-full">A&ntilde;o Completo</th>
     </tr>
     <tr>
@@ -537,10 +526,8 @@ function buildPivotTable(tableId, data, dimLabel){
   tbl.innerHTML = html;
 }
 
-buildPivotTable('tbl_tipo_capex', D.tipo_capex, 'Tipo Capex');
 buildPivotTable('tbl_formato',    D.formato,    'Formato');
 buildPivotTable('tbl_equipo',     D.equipo,     'Equipo');
-buildPivotTable('tbl_tipo',       D.tipo,       'TIPO');
 
 // ================================================================
 // TENDENCIA MENSUAL — Grafico de lineas SVG
@@ -1008,87 +995,111 @@ function buildAntTab() {
   buildAntTable(D.ant_formato, 'ant-tbody-formato', 'ant-bar-formato');
 }
 
-// ============================================================
-// TAB: EQUIPOS DETALLE (AOP / FCST ANT / FCST ACT)
-// ============================================================
-let eqPeriod = 'full';
-function setEqPeriod(p, btn) {
-  eqPeriod = p;
-  document.querySelectorAll('[onclick^="setEqPeriod"]').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderEquiposDetalle();
-}
-
+// ================================================================
+// TAB: EQUIPOS DETALLE (todos los periodos a la vez)
+// ================================================================
 function renderEquiposDetalle() {
-  const data = D.equipo || [];
-  const antD = D.ant_equipo || [];
+  const data   = D.equipo   || [];
+  const antD   = D.ant_equipo || [];
   const antMap = {};
   antD.forEach(r => { antMap[r.cat] = r; });
 
-  const sfx = eqPeriod;
-  const aopK  = `aop_${sfx}`,  aopLabel = eqPeriod==='full'?'Ano Completo':eqPeriod.toUpperCase();
-  const actK  = `fcst_${sfx}`, antK  = `ant_${sfx}`;
+  // Etiquetas headers
+  const ytdLbl  = D.meses_ytd.length ? 'YTD \u2014 ' + D.meses_ytd.join(' / ') : 'YTD';
+  const fwdLbl  = D.meses_fwd.length
+    ? 'Resto \u2014 ' + D.meses_fwd[0] + (D.meses_fwd.length>1?' \u2192 '+D.meses_fwd[D.meses_fwd.length-1]:'')
+    : 'FWD';
+  const hYtd = document.getElementById('eq-hdr-ytd'); if(hYtd) hYtd.textContent = ytdLbl + ' (M)';
+  const hFwd = document.getElementById('eq-hdr-fwd'); if(hFwd) hFwd.textContent = fwdLbl + ' (M)';
 
-  // Labels
-  const lAop = document.getElementById('eq-lbl-aop');
-  const lAnt = document.getElementById('eq-lbl-ant');
-  const lAct = document.getElementById('eq-lbl-act');
-  const th2a = document.getElementById('eq-th-ant2');
-  const th2c = document.getElementById('eq-th-act2');
-  if (lAop) lAop.textContent = D.sel_aop  + ' (' + aopLabel + ')';
-  if (lAnt) lAnt.textContent = (D.sel_fcst_ant||'S/D') + ' (' + aopLabel + ')';
-  if (lAct) lAct.textContent = D.sel_fcst + ' (' + aopLabel + ')';
-  if (th2a) th2a.textContent = D.sel_fcst_ant || 'Sin ant.';
-  if (th2c) th2c.textContent = D.sel_fcst;
+  // Rellenar nombres de escenario en cabeceras
+  const antNm = D.tiene_ant ? (D.sel_fcst_ant||'FCST Ant') : 'Sin ant.';
+  ['eq-th-ant-ytd','eq-th-ant-fwd','eq-th-ant-full','eq-lbl-ant'].forEach(id=>{
+    const e=document.getElementById(id); if(e) e.textContent=antNm;
+  });
+  ['eq-th-act-ytd','eq-th-act-fwd','eq-th-act-full','eq-lbl-act'].forEach(id=>{
+    const e=document.getElementById(id); if(e) e.textContent=D.sel_fcst;
+  });
+  const elaop=document.getElementById('eq-lbl-aop'); if(elaop) elaop.textContent=D.sel_aop;
 
-  // Barras 3 series
-  const barEl = document.getElementById('eq-bar-chart');
-  const maxVal = data.reduce((m,d)=>Math.max(m, d[aopK]||0, d[actK]||0, antMap[d.cat]?.[antK]||0), 0.001);
+  // Barras Año Completo (AOP / ANT / ACT)
+  const barEl  = document.getElementById('eq-bar-chart');
+  const maxVal = data.reduce((m,d)=>Math.max(m,d.aop_full||0,d.fcst_full||0,antMap[d.cat]?.act_full||0),0.001);
   if (barEl) {
-    barEl.innerHTML = data.map(d => {
-      const vAop = d[aopK]||0, vAct = d[actK]||0;
-      const vAnt = antMap[d.cat]?.[antK] || 0;
-      const pAop = vAop/maxVal*100, pAct = vAct/maxVal*100, pAnt = vAnt/maxVal*100;
+    barEl.innerHTML = data.map(d=>{
+      const vAop=d.aop_full||0, vAct=d.fcst_full||0;
+      const vAnt=antMap[d.cat]?.act_full||0;
+      const pAop=vAop/maxVal*100, pAnt=vAnt/maxVal*100, pAct=vAct/maxVal*100;
       return `<div class="bar-row" style="height:auto;padding:2px 0">
         <div class="bar-label">${d.cat}</div>
         <div style="flex:1;display:flex;flex-direction:column;gap:2px">
-          <div style="height:8px;width:${pAop}%;background:#003F87;border-radius:3px" title="AOP: ${vAop.toFixed(1)}"></div>
-          <div style="height:8px;width:${pAnt}%;background:#9EADC8;border-radius:3px" title="Ant: ${vAnt.toFixed(1)}"></div>
-          <div style="height:8px;width:${pAct}%;background:#FFC220;border-radius:3px" title="Act: ${vAct.toFixed(1)}"></div>
+          <div style="height:8px;width:${pAop}%;background:#003F87;border-radius:3px" title="${D.sel_aop}: ${vAop.toFixed(1)}"></div>
+          <div style="height:8px;width:${pAnt}%;background:#9EADC8;border-radius:3px" title="${antNm}: ${vAnt.toFixed(1)}"></div>
+          <div style="height:8px;width:${pAct}%;background:#FFC220;border-radius:3px" title="${D.sel_fcst}: ${vAct.toFixed(1)}"></div>
         </div>
         <div class="bar-val" style="width:90px;font-size:.7rem">${fm(vAct)}</div>
       </div>`;
     }).join('');
   }
 
-  // Tabla
+  // Tabla completa: YTD + FWD + Full (5 cols cada uno)
   const tbody = document.getElementById('eq-tbody');
   if (!tbody) return;
-  let html='', totAop=0, totAct=0, totAnt=0;
+
+  // Acumulados para fila total
+  let tot = {aopY:0,antY:0,actY:0, aopF:0,antF:0,actF:0, aopL:0,antL:0,actL:0};
+
+  let html = '';
   data.forEach(d => {
-    const vAop = d[aopK]||0, vAct = d[actK]||0;
-    const vAnt = antMap[d.cat]?.[antK] || 0;
-    const dvAop = vAct-vAop; const dpAop = vAop ? dvAop/vAop*100 : 0;
-    const dvAnt = vAct-vAnt; const dpAnt = vAnt ? dvAnt/vAnt*100 : 0;
-    totAop+=vAop; totAct+=vAct; totAnt+=vAnt;
+    const a = antMap[d.cat] || {};
+    // YTD
+    const aopY=d.aop_ytd||0,  actY=d.fcst_ytd||0,  antY=a.ant_ytd||0;
+    const dvAopY=actY-aopY,   dvAntY=actY-antY;
+    // FWD
+    const aopF=d.aop_fwd||0,  actF=d.fcst_fwd||0,  antF=a.ant_fwd||0;
+    const dvAopF=actF-aopF,   dvAntF=actF-antF;
+    // FULL
+    const aopL=d.aop_full||0, actL=d.fcst_full||0, antL=a.act_full||0;
+    const dvAopL=actL-aopL,   dvAntL=actL-antL;
+
+    tot.aopY+=aopY; tot.antY+=antY; tot.actY+=actY;
+    tot.aopF+=aopF; tot.antF+=antF; tot.actF+=actF;
+    tot.aopL+=aopL; tot.antL+=antL; tot.actL+=actL;
+
+    const fv=(v,sign=true)=>(sign&&v>0?'+':'')+v.toFixed(1)+' M';
     html += `<tr>
       <td class="cat-col">${d.cat}</td>
-      <td>${fm(vAop)}</td>
-      <td>${D.tiene_ant?fm(vAnt):'-'}</td>
-      <td>${fm(vAct)}</td>
-      <td class="${desvClass(dvAop)}">${dvAop>0?'+':''}${dvAop.toFixed(1)} M</td>
-      <td class="${desvClass(dvAop)}">${fp(dpAop)}</td>
-      <td class="${desvClass(dvAnt)}">${D.tiene_ant?(dvAnt>0?'+':'')+dvAnt.toFixed(1)+' M':'-'}</td>
-      <td class="${desvClass(dvAnt)}">${D.tiene_ant?fp(dpAnt):'-'}</td>
+      <td>${fm(aopY)}</td>
+      <td>${D.tiene_ant?fm(antY):'-'}</td>
+      <td>${fm(actY)}</td>
+      <td class="${desvClass(dvAopY)}">${fv(dvAopY)}</td>
+      <td class="${desvClass(dvAntY)}">${D.tiene_ant?fv(dvAntY):'-'}</td>
+      <td>${fm(aopF)}</td>
+      <td>${D.tiene_ant?fm(antF):'-'}</td>
+      <td>${fm(actF)}</td>
+      <td class="${desvClass(dvAopF)}">${fv(dvAopF)}</td>
+      <td class="${desvClass(dvAntF)}">${D.tiene_ant?fv(dvAntF):'-'}</td>
+      <td>${fm(aopL)}</td>
+      <td>${D.tiene_ant?fm(antL):'-'}</td>
+      <td>${fm(actL)}</td>
+      <td class="${desvClass(dvAopL)}">${fv(dvAopL)}</td>
+      <td class="${desvClass(dvAntL)}">${D.tiene_ant?fv(dvAntL):'-'}</td>
     </tr>`;
   });
-  const dvT = totAct-totAop; const dvTA = totAct-totAnt;
+
+  // Fila TOTAL
+  const fv=(v,sign=true)=>(sign&&v>0?'+':'')+v.toFixed(1)+' M';
+  const dvTY=tot.actY-tot.aopY, dvTaY=tot.actY-tot.antY;
+  const dvTF=tot.actF-tot.aopF, dvTaF=tot.actF-tot.antF;
+  const dvTL=tot.actL-tot.aopL, dvTaL=tot.actL-tot.antL;
   html += `<tr class="total-row">
-    <td>TOTAL</td><td>${fm(totAop)}</td>
-    <td>${D.tiene_ant?fm(totAnt):'-'}</td><td>${fm(totAct)}</td>
-    <td>${dvT>0?'+':''}${dvT.toFixed(1)} M</td><td>${fp(totAop?dvT/totAop*100:0)}</td>
-    <td>${D.tiene_ant?(dvTA>0?'+':'')+dvTA.toFixed(1)+' M':'-'}</td>
-    <td>${D.tiene_ant?fp(totAnt?dvTA/totAnt*100:0):'-'}</td>
+    <td>TOTAL</td>
+    <td>${fm(tot.aopY)}</td><td>${D.tiene_ant?fm(tot.antY):'-'}</td><td>${fm(tot.actY)}</td>
+    <td class="${desvClass(dvTY)}">${fv(dvTY)}</td><td class="${desvClass(dvTaY)}">${D.tiene_ant?fv(dvTaY):'-'}</td>
+    <td>${fm(tot.aopF)}</td><td>${D.tiene_ant?fm(tot.antF):'-'}</td><td>${fm(tot.actF)}</td>
+    <td class="${desvClass(dvTF)}">${fv(dvTF)}</td><td class="${desvClass(dvTaF)}">${D.tiene_ant?fv(dvTaF):'-'}</td>
+    <td>${fm(tot.aopL)}</td><td>${D.tiene_ant?fm(tot.antL):'-'}</td><td>${fm(tot.actL)}</td>
+    <td class="${desvClass(dvTL)}">${fv(dvTL)}</td><td class="${desvClass(dvTaL)}">${D.tiene_ant?fv(dvTaL):'-'}</td>
   </tr>`;
   tbody.innerHTML = html;
 }

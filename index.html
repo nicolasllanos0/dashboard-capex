@@ -96,6 +96,30 @@ body{background:#F4F6F9;color:#1A1A2E}
 .badge-cur{background:#FFC220;color:#003F87}
 /* responsive */
 @media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.tabs{flex-wrap:wrap}}
+/* Pills lineas capex */
+.lc-pill{padding:5px 14px;border-radius:20px;border:1.5px solid #003F87;background:#fff;color:#003F87;
+  font-size:.78rem;font-weight:700;cursor:pointer;transition:all .18s;white-space:nowrap}
+.lc-pill:hover{background:#EBF3FF}
+.lc-pill.active{background:#003F87;color:#FFC220;border-color:#003F87}
+/* KPI mini-card linea */
+.lc-card{min-width:160px;background:#fff;border-radius:10px;padding:12px 14px;
+  border:1.5px solid #e0e6ef;box-shadow:0 1px 4px rgba(0,63,135,.08);flex-shrink:0}
+.lc-card .lc-name{font-size:.7rem;font-weight:700;color:#003F87;text-transform:uppercase;
+  letter-spacing:.04em;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc-card .lc-val{font-size:1.1rem;font-weight:800;color:#1A1A2E;line-height:1.1}
+.lc-card .lc-sub{font-size:.68rem;color:#666;margin-top:3px}
+.lc-card .lc-badge{display:inline-block;margin-top:6px;padding:2px 8px;border-radius:10px;
+  font-size:.68rem;font-weight:700}
+.lc-card .lc-badge.pos{background:#E8F5E9;color:#1B7A3E}
+.lc-card .lc-badge.neg{background:#FFEBEE;color:#C62828}
+.lc-card .lc-badge.neu{background:#F5F5F5;color:#555}
+/* heatmap cells */
+.hm-0{background:#EBF3FF;color:#1A1A2E}
+.hm-1{background:#BBDEFB;color:#1A1A2E}
+.hm-2{background:#64B5F6;color:#1A1A2E}
+.hm-3{background:#1565C0;color:#fff}
+.hm-4{background:#003F87;color:#FFC220;font-weight:700}
+.hm-zero{background:#fafafa;color:#bbb;font-style:italic}
 </style>
 </head>
 <body>
@@ -111,9 +135,8 @@ body{background:#F4F6F9;color:#1A1A2E}
   <div class="tab active" onclick="showTab('resumen')">&#128202; Resumen</div>
   <div class="tab" onclick="showTab('tendencia')">&#128200; Tendencia Mensual</div>
   <div class="tab" onclick="showTab('formato')">&#127968; Por Formato</div>
-  <div class="tab" onclick="showTab('equipo')">&#128101; Por Equipo</div>
   <div class="tab" onclick="showTab('fcst_vs_ant')">&#128260; FCST vs Anterior</div>
-  <div class="tab" onclick="showTab('equipos_full')">&#128101; Equipos Detalle</div>
+  <div class="tab" onclick="showTab('equipos_full')">&#128736; Líneas Capex</div>
 </div>
 
 <!-- ===== RESUMEN ===== -->
@@ -263,19 +286,6 @@ body{background:#F4F6F9;color:#1A1A2E}
   <div class="table-wrap"><table class="pivot-table" id="tbl_formato"></table></div>
 </div>
 
-<!-- ===== POR EQUIPO ===== -->
-<div id="tab-equipo" class="tab-content">
-  <div class="chart-container">
-    <div class="chart-title" id="eq-chart-title">Por Equipo &mdash; AOP vs FCST &mdash; A&ntilde;o Completo (M CLP)</div>
-    <div class="bar-legend">
-      <div class="bl-item"><div class="bl-sq" style="background:#003F87"></div> <span id="eq-lbl-aop-tab"></span></div>
-      <div class="bl-item"><div class="bl-sq" style="background:#FFC220"></div> <span id="eq-lbl-fcst-tab"></span></div>
-    </div>
-    <div class="bar-chart" id="bar_eq_full"></div>
-  </div>
-  <div class="table-wrap"><table class="pivot-table" id="tbl_equipo"></table></div>
-</div>
-
 
 
 <!-- ===== FCST VS ANTERIOR ===== -->
@@ -284,112 +294,134 @@ body{background:#F4F6F9;color:#1A1A2E}
     &#128337; No hay FCST anterior disponible &mdash; este es el primer forecast del a&ntilde;o.
   </div>
   <div id="ant-container">
-    <!-- Banner comparacion -->
+
+    <!-- Banner resumen -->
     <div class="summary-box" id="ant-summary-box" style="margin-bottom:20px"></div>
 
-    <!-- POR EQUIPO -->
+    <!-- Grafico variacion por linea -->
     <div class="chart-container" style="margin-bottom:20px">
-      <div class="chart-title">&#128101; Variaci&oacute;n por Equipo &mdash; <span id="ant-label-equipo"></span></div>
-      <div id="ant-bar-equipo" class="bar-chart" style="margin-bottom:16px"></div>
-      <div class="table-wrap">
-        <table class="pivot-table" id="ant-tbl-equipo">
-          <thead><tr>
-            <th class="dim-hdr">Equipo</th>
-            <th>AOP Full (M)</th>
-            <th id="ant-th-ant"></th>
-            <th id="ant-th-act"></th>
-            <th>Var. Full (M)</th>
-            <th>Var. %</th>
-            <th>YTD Ant.</th>
-            <th>YTD Act.</th>
-            <th>Var. YTD</th>
-            <th>FWD Ant.</th>
-            <th>FWD Act.</th>
-            <th>Var. FWD</th>
-          </tr></thead>
-          <tbody id="ant-tbody-equipo"></tbody>
-        </table>
-      </div>
+      <div class="chart-title" id="ant-chart-title">Variaci&oacute;n por L&iacute;nea Capex</div>
+      <div id="ant-bar-lineas" class="bar-chart" style="margin-bottom:8px"></div>
     </div>
 
-    <!-- POR FORMATO -->
+    <!-- Tabla por linea capex -->
     <div class="chart-container">
-      <div class="chart-title">&#127968; Variaci&oacute;n por Formato &mdash; <span id="ant-label-formato"></span></div>
-      <div id="ant-bar-formato" class="bar-chart" style="margin-bottom:16px"></div>
+      <div class="chart-title" style="margin-bottom:12px" id="ant-tbl-title">Detalle por L&iacute;nea Capex &mdash; Todos los Per&iacute;odos</div>
       <div class="table-wrap">
-        <table class="pivot-table" id="ant-tbl-formato">
-          <thead><tr>
-            <th class="dim-hdr">Formato</th>
-            <th>AOP Full (M)</th>
-            <th></th>
-            <th></th>
-            <th>Var. Full (M)</th>
-            <th>Var. %</th>
-            <th>YTD Ant.</th>
-            <th>YTD Act.</th>
-            <th>Var. YTD</th>
-            <th>FWD Ant.</th>
-            <th>FWD Act.</th>
-            <th>Var. FWD</th>
-          </tr></thead>
-          <tbody id="ant-tbody-formato"></tbody>
+        <table class="pivot-table">
+          <thead>
+            <tr>
+              <th rowspan="2" class="dim-hdr">L&iacute;nea Capex</th>
+              <th colspan="4" class="ph-ytd" id="ant-hdr-ytd">YTD</th>
+              <th colspan="4" class="ph-fwd" id="ant-hdr-ytg">YTG</th>
+              <th colspan="4" class="ph-full">A&ntilde;o Completo</th>
+            </tr>
+            <tr>
+              <!-- YTD -->
+              <th style="background:#1565C0;color:#fff" id="ant-th-feb-ytd"></th>
+              <th style="background:#BF8A00;color:#fff" id="ant-th-mar-ytd"></th>
+              <th style="background:#1565C0;color:#fff">Var. M</th>
+              <th style="background:#1565C0;color:#fff">Var. %</th>
+              <!-- YTG -->
+              <th style="background:#003F87;color:#FFC220" id="ant-th-feb-ytg"></th>
+              <th style="background:#BF8A00;color:#fff" id="ant-th-mar-ytg"></th>
+              <th style="background:#003F87;color:#FFC220">Var. M</th>
+              <th style="background:#003F87;color:#FFC220">Var. %</th>
+              <!-- FULL -->
+              <th style="background:#002244;color:#FFC220" id="ant-th-feb-full"></th>
+              <th style="background:#BF8A00;color:#fff" id="ant-th-mar-full"></th>
+              <th style="background:#002244;color:#FFC220">Var. M</th>
+              <th style="background:#002244;color:#FFC220">Var. %</th>
+            </tr>
+          </thead>
+          <tbody id="ant-tbody-lineas"></tbody>
         </table>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ===== EQUIPOS DETALLE ===== -->
+<!-- ===== LINEAS CAPEX (nuevo) ===== -->
 <div id="tab-equipos_full" class="tab-content">
-  <div class="chart-container">
-    <div class="chart-title">&#128101; Detalle por Equipo &mdash; Todos los Periodos</div>
 
-    <!-- Barras AOP / ANT / ACT (Año Completo) -->
-    <div id="eq-bar-chart" class="bar-chart" style="margin-bottom:8px"></div>
-    <div class="bar-legend" style="margin-bottom:16px">
-      <div class="bl-item"><div class="bl-sq" style="background:#003F87"></div> <span id="eq-lbl-aop"></span></div>
-      <div class="bl-item"><div class="bl-sq" style="background:#9EADC8"></div> <span id="eq-lbl-ant"></span></div>
-      <div class="bl-item"><div class="bl-sq" style="background:#FFC220"></div> <span id="eq-lbl-act"></span></div>
+  <!-- Selector de periodo -->
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+    <span style="font-weight:700;color:#003F87;font-size:.9rem">Ver per&iacute;odo:</span>
+    <div id="lc-pill-bar" style="display:flex;gap:8px">
+      <button class="lc-pill active" onclick="lcSetPeriod('ytd',this)" id="lc-pill-ytd">YTD</button>
+      <button class="lc-pill"        onclick="lcSetPeriod('ytg',this)" id="lc-pill-ytg">YTG</button>
+      <button class="lc-pill"        onclick="lcSetPeriod('full',this)" id="lc-pill-full">A&ntilde;o Completo</button>
     </div>
+    <span id="lc-period-label" style="font-size:.78rem;color:#888;margin-left:8px"></span>
+  </div>
 
+  <!-- KPI cards por linea (scroll horizontal) -->
+  <div id="lc-cards" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:10px;margin-bottom:22px"></div>
+
+  <!-- Tabla comparativa AOP vs FCST -->
+  <div class="chart-container" style="margin-bottom:22px">
+    <div class="chart-title" id="lc-tbl-title">L&iacute;neas Capex &mdash; AOP vs FCST</div>
     <div class="table-wrap">
       <table class="pivot-table">
         <thead>
           <tr>
-            <th rowspan="2" class="dim-hdr">Equipo</th>
-            <th colspan="5" class="ph-ytd" id="eq-hdr-ytd">YTD</th>
-            <th colspan="5" class="ph-fwd" id="eq-hdr-fwd">FWD</th>
-            <th colspan="5" class="ph-full">A&ntilde;o Completo</th>
-          </tr>
-          <tr>
-            <!-- YTD -->
-            <th style="background:#1565C0;color:#fff">AOP</th>
-            <th style="background:#4a5a78;color:#fff" id="eq-th-ant-ytd"></th>
-            <th style="background:#BF8A00;color:#fff" id="eq-th-act-ytd"></th>
-            <th style="background:#1565C0;color:#fff">vs AOP</th>
-            <th style="background:#004d40;color:#fff">vs Ant</th>
-            <!-- FWD -->
-            <th style="background:#003F87;color:#FFC220">AOP</th>
-            <th style="background:#4a5a78;color:#fff" id="eq-th-ant-fwd"></th>
-            <th style="background:#BF8A00;color:#fff" id="eq-th-act-fwd"></th>
-            <th style="background:#003F87;color:#FFC220">vs AOP</th>
-            <th style="background:#004d40;color:#fff">vs Ant</th>
-            <!-- FULL -->
-            <th style="background:#002244;color:#FFC220">AOP</th>
-            <th style="background:#4a5a78;color:#fff" id="eq-th-ant-full"></th>
-            <th style="background:#BF8A00;color:#fff" id="eq-th-act-full"></th>
-            <th style="background:#002244;color:#FFC220">vs AOP</th>
-            <th style="background:#004d40;color:#fff">vs Ant</th>
+            <th class="dim-hdr">L&iacute;nea</th>
+            <th id="lc-th-aop">AOP (M)</th>
+            <th id="lc-th-fcst">FCST (M)</th>
+            <th>vs AOP (M)</th>
+            <th>vs AOP (%)</th>
+            <th id="lc-th-feb">FCST Ant. (M)</th>
+            <th>vs Ant. (M)</th>
+            <th>vs Ant. (%)</th>
           </tr>
         </thead>
-        <tbody id="eq-tbody"></tbody>
+        <tbody id="lc-tbody"></tbody>
+        <tfoot id="lc-tfoot"></tfoot>
       </table>
     </div>
   </div>
+
+  <!-- Tabla mensual heatmap -->
+  <div class="chart-container">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="chart-title" style="margin:0">&#128197; Distribuci&oacute;n Mensual por L&iacute;nea (M CLP)</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <div style="display:flex;gap:6px">
+          <button class="lc-pill active" onclick="lcSetMensualEsc('fcst',this)" id="lc-me-fcst">FCST Marzo</button>
+          <button class="lc-pill"        onclick="lcSetMensualEsc('aop',this)"  id="lc-me-aop">AOP</button>
+          <button class="lc-pill"        onclick="lcSetMensualEsc('feb',this)"  id="lc-me-feb">FCST Feb</button>
+        </div>
+        <label style="font-size:.78rem;color:#555">
+          <input type="checkbox" id="lc-heat-chk" onchange="lcRenderMensual()" checked style="margin-right:4px">Heatmap
+        </label>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="pivot-table" id="lc-tbl-mensual">
+        <thead id="lc-mensual-head"></thead>
+        <tbody id="lc-mensual-body"></tbody>
+        <tfoot id="lc-mensual-foot"></tfoot>
+      </table>
+    </div>
+    <!-- Leyenda heatmap -->
+    <div id="lc-heat-legend" style="display:flex;gap:6px;align-items:center;margin-top:10px;font-size:.72rem;color:#555">
+      <span>Menor</span>
+      <div style="display:flex;gap:2px">
+        <div style="width:22px;height:12px;background:#EBF3FF;border:1px solid #ccc"></div>
+        <div style="width:22px;height:12px;background:#BBDEFB"></div>
+        <div style="width:22px;height:12px;background:#64B5F6"></div>
+        <div style="width:22px;height:12px;background:#1565C0"></div>
+        <div style="width:22px;height:12px;background:#003F87"></div>
+      </div>
+      <span>Mayor</span>
+      <span style="margin-left:16px;color:#aaa">(relativo al m&aacute;ximo de cada fila)</span>
+    </div>
+  </div>
+
 </div>
 
 <script>
-const D = {"kpi": {"AOP_YTD": 25481.3, "AOP_FWD": 285432.7, "AOP_FULL": 310914.0, "FCST_YTD": 19519.8, "FCST_FWD": 291394.3, "FCST_FULL": 310914.1, "DESV_YTD": -5961.5, "DESV_FWD": 5961.6, "DESV_FULL": 0.1, "DPCT_YTD": -23.4, "DPCT_FWD": 2.1, "DPCT_FULL": 0.0}, "tipo_capex": [{"cat": "Supply Chain", "aop_ytd": 5040.3, "fcst_ytd": 417.5, "desv_ytd": -4622.8, "dpct_ytd": -91.7, "aop_fwd": 91951.8, "fcst_fwd": 96582.0, "desv_fwd": 4630.2, "dpct_fwd": 5.0, "aop_full": 96992.1, "fcst_full": 96999.5, "desv_full": 7.4, "dpct_full": 0.0}, {"cat": "Remodelacion Full", "aop_ytd": 6894.3, "fcst_ytd": 8504.4, "desv_ytd": 1610.1, "dpct_ytd": 23.4, "aop_fwd": 71691.8, "fcst_fwd": 68797.2, "desv_fwd": -2894.6, "dpct_fwd": -4.0, "aop_full": 78586.1, "fcst_full": 77301.6, "desv_full": -1284.5, "dpct_full": -1.6}, {"cat": "New Stores Proyecto", "aop_ytd": 4077.1, "fcst_ytd": 2997.1, "desv_ytd": -1080.0, "dpct_ytd": -26.5, "aop_fwd": 34184.8, "fcst_fwd": 35221.4, "desv_fwd": 1036.5, "dpct_fwd": 3.0, "aop_full": 38261.9, "fcst_full": 38218.5, "desv_full": -43.4, "dpct_full": -0.1}, {"cat": "EUBI", "aop_ytd": 3618.2, "fcst_ytd": 1775.8, "desv_ytd": -1842.4, "dpct_ytd": -50.9, "aop_fwd": 25085.8, "fcst_fwd": 26228.9, "desv_fwd": 1143.0, "dpct_fwd": 4.6, "aop_full": 28704.1, "fcst_full": 28004.7, "desv_full": -699.4, "dpct_full": -2.4}, {"cat": "ISD", "aop_ytd": 1750.6, "fcst_ytd": 737.6, "desv_ytd": -1013.0, "dpct_ytd": -57.9, "aop_fwd": 20588.2, "fcst_fwd": 18516.3, "desv_fwd": -2071.9, "dpct_fwd": -10.1, "aop_full": 22338.9, "fcst_full": 19253.9, "desv_full": -3084.9, "dpct_full": -13.8}, {"cat": "Home Office", "aop_ytd": 0.0, "fcst_ytd": 75.9, "desv_ytd": 75.9, "dpct_ytd": 0.0, "aop_fwd": 14526.8, "fcst_fwd": 14450.9, "desv_fwd": -75.9, "dpct_fwd": -0.5, "aop_full": 14526.8, "fcst_full": 14526.8, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "Mantencion", "aop_ytd": 0.0, "fcst_ytd": 851.1, "desv_ytd": 851.1, "dpct_ytd": 0.0, "aop_fwd": 12210.5, "fcst_fwd": 11359.5, "desv_fwd": -851.0, "dpct_fwd": -7.0, "aop_full": 12210.5, "fcst_full": 12210.5, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "Compliance", "aop_ytd": 1472.8, "fcst_ytd": 2351.2, "desv_ytd": 878.4, "dpct_ytd": 59.6, "aop_fwd": 7584.5, "fcst_fwd": 8738.7, "desv_fwd": 1154.1, "dpct_fwd": 15.2, "aop_full": 9057.3, "fcst_full": 11089.9, "desv_full": 2032.6, "dpct_full": 22.4}, {"cat": "WAYS", "aop_ytd": 1060.0, "fcst_ytd": 1184.0, "desv_ytd": 124.0, "dpct_ytd": 11.7, "aop_fwd": 5665.0, "fcst_fwd": 5541.0, "desv_fwd": -124.0, "dpct_fwd": -2.2, "aop_full": 6725.0, "fcst_full": 6725.0, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "Reposicion", "aop_ytd": 682.2, "fcst_ytd": 243.8, "desv_ytd": -438.5, "dpct_ytd": -64.3, "aop_fwd": 5411.2, "fcst_fwd": 5849.7, "desv_fwd": 438.5, "dpct_fwd": 8.1, "aop_full": 6093.5, "fcst_full": 6093.5, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "E-Commerce", "aop_ytd": 389.0, "fcst_ytd": 183.7, "desv_ytd": -205.3, "dpct_ytd": -52.8, "aop_fwd": 5009.4, "fcst_fwd": 5214.7, "desv_fwd": 205.3, "dpct_fwd": 4.1, "aop_full": 5398.4, "fcst_full": 5398.4, "desv_full": -0.0, "dpct_full": -0.0}, {"cat": "Asset Protection", "aop_ytd": 344.3, "fcst_ytd": 176.1, "desv_ytd": -168.2, "dpct_ytd": -48.9, "aop_fwd": 2847.7, "fcst_fwd": 3015.9, "desv_fwd": 168.2, "dpct_fwd": 5.9, "aop_full": 3192.0, "fcst_full": 3192.0, "desv_full": -0.0, "dpct_full": -0.0}, {"cat": "Otros", "aop_ytd": 152.4, "fcst_ytd": 21.7, "desv_ytd": -130.7, "dpct_ytd": -85.8, "aop_fwd": 2793.1, "fcst_fwd": 2911.3, "desv_fwd": 118.2, "dpct_fwd": 4.2, "aop_full": 2945.5, "fcst_full": 2932.9, "desv_full": -12.5, "dpct_full": -0.4}, {"cat": "ISM", "aop_ytd": 0.0, "fcst_ytd": 0.0, "desv_ytd": 0.0, "dpct_ytd": 0.0, "aop_fwd": -4000.0, "fcst_fwd": -4000.0, "desv_fwd": 0.0, "dpct_fwd": -0.0, "aop_full": -4000.0, "fcst_full": -4000.0, "desv_full": 0.0, "dpct_full": -0.0}, {"cat": "Challenge", "aop_ytd": 0.0, "fcst_ytd": 0.0, "desv_ytd": 0.0, "dpct_ytd": 0.0, "aop_fwd": -10118.1, "fcst_fwd": -7033.1, "desv_fwd": 3085.0, "dpct_fwd": -30.5, "aop_full": -10118.1, "fcst_full": -7033.1, "desv_full": 3085.0, "dpct_full": -30.5}], "formato": [{"cat": "Lider", "aop_ytd": 10815.1, "fcst_ytd": 10827.8, "desv_ytd": 12.7, "dpct_ytd": 0.1, "aop_fwd": 93030.1, "fcst_fwd": 93975.8, "desv_fwd": 945.8, "dpct_fwd": 1.0, "aop_full": 103845.1, "fcst_full": 104803.7, "desv_full": 958.5, "dpct_full": 0.9}, {"cat": "Warehousing", "aop_ytd": 59.4, "fcst_ytd": 226.7, "desv_ytd": 167.3, "dpct_ytd": 281.5, "aop_fwd": 63477.6, "fcst_fwd": 63306.4, "desv_fwd": -171.2, "dpct_fwd": -0.3, "aop_full": 63537.0, "fcst_full": 63533.1, "desv_full": -3.9, "dpct_full": -0.0}, {"cat": "Express", "aop_ytd": 5671.2, "fcst_ytd": 3477.5, "desv_ytd": -2193.7, "dpct_ytd": -38.7, "aop_fwd": 41092.0, "fcst_fwd": 43766.1, "desv_fwd": 2674.1, "dpct_fwd": 6.5, "aop_full": 46763.2, "fcst_full": 47243.6, "desv_full": 480.4, "dpct_full": 1.0}, {"cat": "Bodega", "aop_ytd": 1780.5, "fcst_ytd": 2794.0, "desv_ytd": 1013.5, "dpct_ytd": 56.9, "aop_fwd": 42861.5, "fcst_fwd": 41242.0, "desv_fwd": -1619.6, "dpct_fwd": -3.8, "aop_full": 44642.0, "fcst_full": 44036.0, "desv_full": -606.1, "dpct_full": -1.4}, {"cat": "Proyectos", "aop_ytd": 4984.8, "fcst_ytd": 201.2, "desv_ytd": -4783.6, "dpct_ytd": -96.0, "aop_fwd": 24474.2, "fcst_fwd": 29534.0, "desv_fwd": 5059.8, "dpct_fwd": 20.7, "aop_full": 29459.0, "fcst_full": 29735.2, "desv_full": 276.2, "dpct_full": 0.9}, {"cat": "Home Office", "aop_ytd": 1004.5, "fcst_ytd": 735.8, "desv_ytd": -268.7, "dpct_ytd": -26.8, "aop_fwd": 20097.4, "fcst_fwd": 16073.8, "desv_fwd": -4023.7, "dpct_fwd": -20.0, "aop_full": 21101.9, "fcst_full": 16809.6, "desv_full": -4292.4, "dpct_full": -20.3}, {"cat": "WAYS", "aop_ytd": 1060.0, "fcst_ytd": 1184.0, "desv_ytd": 124.0, "dpct_ytd": 11.7, "aop_fwd": 5665.0, "fcst_fwd": 5541.0, "desv_fwd": -124.0, "dpct_fwd": -2.2, "aop_full": 6725.0, "fcst_full": 6725.0, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "Mayorista", "aop_ytd": 39.1, "fcst_ytd": 28.1, "desv_ytd": -11.0, "dpct_ytd": -28.2, "aop_fwd": 4289.9, "fcst_fwd": 3917.0, "desv_fwd": -373.0, "dpct_fwd": -8.7, "aop_full": 4329.1, "fcst_full": 3945.1, "desv_full": -384.0, "dpct_full": -8.9}, {"cat": "Otros", "aop_ytd": 0.0, "fcst_ytd": 44.7, "desv_ytd": 44.7, "dpct_ytd": 0.0, "aop_fwd": 0.0, "fcst_fwd": 3808.9, "desv_fwd": 3808.9, "dpct_fwd": 0.0, "aop_full": 0.0, "fcst_full": 3853.6, "desv_full": 3853.6, "dpct_full": 0.0}, {"cat": "Sin Clasificar", "aop_ytd": 0.0, "fcst_ytd": 0.0, "desv_ytd": 0.0, "dpct_ytd": 0.0, "aop_fwd": 0.0, "fcst_fwd": -2737.6, "desv_fwd": -2737.6, "dpct_fwd": 0.0, "aop_full": 0.0, "fcst_full": -2737.6, "desv_full": -2737.6, "dpct_full": 0.0}, {"cat": "Retail", "aop_ytd": 66.7, "fcst_ytd": 0.0, "desv_ytd": -66.7, "dpct_ytd": -100.0, "aop_fwd": -9555.0, "fcst_fwd": -7033.1, "desv_fwd": 2521.9, "dpct_fwd": -26.4, "aop_full": -9488.4, "fcst_full": -7033.1, "desv_full": 2455.2, "dpct_full": -25.9}], "equipo": [{"cat": "Inmobiliaria", "aop_ytd": 20795.2, "fcst_ytd": 16553.0, "desv_ytd": -4242.2, "dpct_ytd": -20.4, "aop_fwd": 170323.8, "fcst_fwd": 174566.1, "desv_fwd": 4242.2, "dpct_fwd": 2.5, "aop_full": 191119.0, "fcst_full": 191119.1, "desv_full": 0.1, "dpct_full": 0.0}, {"cat": "Supply Equipment", "aop_ytd": 55.5, "fcst_ytd": 226.7, "desv_ytd": 171.2, "dpct_ytd": 308.2, "aop_fwd": 67477.6, "fcst_fwd": 67306.4, "desv_fwd": -171.2, "dpct_fwd": -0.3, "aop_full": 67533.1, "fcst_full": 67533.1, "desv_full": -0.0, "dpct_full": -0.0}, {"cat": "COPS", "aop_ytd": 352.0, "fcst_ytd": 214.9, "desv_ytd": -137.1, "dpct_ytd": -39.0, "aop_fwd": 20165.7, "fcst_fwd": 20302.8, "desv_fwd": 137.1, "dpct_fwd": 0.7, "aop_full": 20517.7, "fcst_full": 20517.7, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "ISD", "aop_ytd": 1750.6, "fcst_ytd": 737.6, "desv_ytd": -1013.0, "dpct_ytd": -57.9, "aop_fwd": 20588.2, "fcst_fwd": 18516.3, "desv_fwd": -2071.9, "dpct_fwd": -10.1, "aop_full": 22338.9, "fcst_full": 19253.9, "desv_full": -3084.9, "dpct_full": -13.8}, {"cat": "WAYS", "aop_ytd": 1060.0, "fcst_ytd": 1184.0, "desv_ytd": 124.0, "dpct_ytd": 11.7, "aop_fwd": 5665.0, "fcst_fwd": 5541.0, "desv_fwd": -124.0, "dpct_fwd": -2.2, "aop_full": 6725.0, "fcst_full": 6725.0, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "Reposicion", "aop_ytd": 682.2, "fcst_ytd": 243.8, "desv_ytd": -438.5, "dpct_ytd": -64.3, "aop_fwd": 5411.2, "fcst_fwd": 5849.7, "desv_fwd": 438.5, "dpct_fwd": 8.1, "aop_full": 6093.5, "fcst_full": 6093.5, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "E-Commerce", "aop_ytd": 389.0, "fcst_ytd": 183.7, "desv_ytd": -205.3, "dpct_ytd": -52.8, "aop_fwd": 5009.4, "fcst_fwd": 5214.7, "desv_fwd": 205.3, "dpct_fwd": 4.1, "aop_full": 5398.4, "fcst_full": 5398.4, "desv_full": -0.0, "dpct_full": -0.0}, {"cat": "Asset Protection", "aop_ytd": 344.3, "fcst_ytd": 176.1, "desv_ytd": -168.2, "dpct_ytd": -48.9, "aop_fwd": 2847.7, "fcst_fwd": 3015.9, "desv_fwd": 168.2, "dpct_fwd": 5.9, "aop_full": 3192.0, "fcst_full": 3192.0, "desv_full": -0.0, "dpct_full": -0.0}, {"cat": "Tesoreria", "aop_ytd": 0.0, "fcst_ytd": 0.0, "desv_ytd": 0.0, "dpct_ytd": 0.0, "aop_fwd": 1800.0, "fcst_fwd": 1800.0, "desv_fwd": 0.0, "dpct_fwd": 0.0, "aop_full": 1800.0, "fcst_full": 1800.0, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "Otros", "aop_ytd": 52.4, "fcst_ytd": 0.0, "desv_ytd": -52.4, "dpct_ytd": -100.0, "aop_fwd": -13856.1, "fcst_fwd": -10718.7, "desv_fwd": 3137.4, "dpct_fwd": -22.6, "aop_full": -13803.7, "fcst_full": -10718.7, "desv_full": 3085.0, "dpct_full": -22.3}], "tipo": [{"cat": "Equipamiento", "aop_ytd": 12699.2, "fcst_ytd": 9534.7, "desv_ytd": -3164.5, "dpct_ytd": -24.9, "aop_fwd": 183166.0, "fcst_fwd": 178685.0, "desv_fwd": -4481.0, "dpct_fwd": -2.4, "aop_full": 195865.1, "fcst_full": 188219.7, "desv_full": -7645.5, "dpct_full": -3.9}, {"cat": "Infraestructura", "aop_ytd": 13397.5, "fcst_ytd": 9985.1, "desv_ytd": -3412.4, "dpct_ytd": -25.5, "aop_fwd": 110815.5, "fcst_fwd": 114934.2, "desv_fwd": 4118.8, "dpct_fwd": 3.7, "aop_full": 124213.0, "fcst_full": 124919.4, "desv_full": 706.4, "dpct_full": 0.6}, {"cat": "TBD", "aop_ytd": -615.4, "fcst_ytd": 0.0, "desv_ytd": 615.4, "dpct_ytd": -100.0, "aop_fwd": -8548.7, "fcst_fwd": 0.0, "desv_fwd": 8548.7, "dpct_fwd": -100.0, "aop_full": -9164.2, "fcst_full": 0.0, "desv_full": 9164.2, "dpct_full": -100.0}, {"cat": "Ajuste", "aop_ytd": 0.0, "fcst_ytd": 0.0, "desv_ytd": 0.0, "dpct_ytd": 0.0, "aop_fwd": 0.0, "fcst_fwd": -2225.0, "desv_fwd": -2225.0, "dpct_fwd": 0.0, "aop_full": 0.0, "fcst_full": -2225.0, "desv_full": -2225.0, "dpct_full": 0.0}], "monthly_trend": [{"mes": "Enero", "mes_corto": "Ene", "aop": 10547.8, "fcst": 6427.4, "desv": -4120.4, "aop_cum": 10547.8, "fcst_cum": 6427.4, "desv_cum": -4120.4, "es_actual": false, "es_futuro": false}, {"mes": "Febrero", "mes_corto": "Feb", "aop": 14933.6, "fcst": 13092.5, "desv": -1841.1, "aop_cum": 25481.4, "fcst_cum": 19519.9, "desv_cum": -5961.5, "es_actual": false, "es_futuro": false}, {"mes": "Marzo", "mes_corto": "Mar", "aop": 17362.5, "fcst": 24827.6, "desv": 7465.1, "aop_cum": 42843.9, "fcst_cum": 44347.5, "desv_cum": 1503.6, "es_actual": true, "es_futuro": true}, {"mes": "Abril", "mes_corto": "Abr", "aop": 24388.9, "fcst": 31526.6, "desv": 7137.7, "aop_cum": 67232.8, "fcst_cum": 75874.1, "desv_cum": 8641.3, "es_actual": false, "es_futuro": true}, {"mes": "Mayo", "mes_corto": "May", "aop": 32061.8, "fcst": 24636.4, "desv": -7425.4, "aop_cum": 99294.6, "fcst_cum": 100510.5, "desv_cum": 1215.9, "es_actual": false, "es_futuro": true}, {"mes": "Junio", "mes_corto": "Jun", "aop": 40055.2, "fcst": 39955.2, "desv": -100.0, "aop_cum": 139349.8, "fcst_cum": 140465.7, "desv_cum": 1115.9, "es_actual": false, "es_futuro": true}, {"mes": "Julio", "mes_corto": "Jul", "aop": 38793.4, "fcst": 30419.4, "desv": -8374.0, "aop_cum": 178143.2, "fcst_cum": 170885.1, "desv_cum": -7258.1, "es_actual": false, "es_futuro": true}, {"mes": "Agosto", "mes_corto": "Ago", "aop": 28478.7, "fcst": 28874.9, "desv": 396.2, "aop_cum": 206621.9, "fcst_cum": 199760.0, "desv_cum": -6861.9, "es_actual": false, "es_futuro": true}, {"mes": "Septiembre", "mes_corto": "Sep", "aop": 25200.3, "fcst": 25012.5, "desv": -187.8, "aop_cum": 231822.2, "fcst_cum": 224772.5, "desv_cum": -7049.7, "es_actual": false, "es_futuro": true}, {"mes": "Octubre", "mes_corto": "Oct", "aop": 29143.3, "fcst": 30169.7, "desv": 1026.4, "aop_cum": 260965.5, "fcst_cum": 254942.2, "desv_cum": -6023.3, "es_actual": false, "es_futuro": true}, {"mes": "Noviembre", "mes_corto": "Nov", "aop": 29458.1, "fcst": 31434.9, "desv": 1976.8, "aop_cum": 290423.6, "fcst_cum": 286377.1, "desv_cum": -4046.5, "es_actual": false, "es_futuro": true}, {"mes": "Diciembre", "mes_corto": "Dic", "aop": 20490.3, "fcst": 24537.1, "desv": 4046.8, "aop_cum": 310913.9, "fcst_cum": 310914.2, "desv_cum": 0.3, "es_actual": false, "es_futuro": true}], "quarterly_data": [{"quarter": "Q1", "meses": "Ene / Feb / Mar", "aop": 42843.8, "fcst": 44347.4, "desv": 1503.6, "dpct": 3.5, "estado": "En Curso", "en_curso": true}, {"quarter": "Q2", "meses": "Abr / May / Jun", "aop": 96505.9, "fcst": 96118.2, "desv": -387.7, "dpct": -0.4, "estado": "Por Ejecutar", "en_curso": false}, {"quarter": "Q3", "meses": "Jul / Ago / Sep", "aop": 92472.5, "fcst": 84306.7, "desv": -8165.8, "dpct": -8.8, "estado": "Por Ejecutar", "en_curso": false}, {"quarter": "Q4", "meses": "Oct / Nov / Dic", "aop": 79091.7, "fcst": 86141.6, "desv": 7049.9, "dpct": 8.9, "estado": "Por Ejecutar", "en_curso": false}], "meses_ytd": ["Enero", "Febrero"], "meses_fwd": ["Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"], "fecha": "11/03/2026", "sel_aop": "AOP FINAL", "sel_fcst": "FCST MARZO", "sel_fcst_ant": "FCST FEBRERO", "mes_actual": "Marzo", "label_vs": "FCST MARZO vs AOP FINAL", "tiene_ant": true, "ant_equipo": [{"cat": "Inmobiliaria", "aop_full": 191119.0, "ant_full": 191119.0, "act_full": 191119.1, "diff_full": 0.1, "dpct_full": 0.0, "ant_ytd": 15747.5, "act_ytd": 16553.0, "diff_ytd": 805.5, "ant_fwd": 175371.5, "act_fwd": 174566.1, "diff_fwd": -805.5}, {"cat": "Supply Equipment", "aop_full": 67533.1, "ant_full": 67533.1, "act_full": 67533.1, "diff_full": -0.0, "dpct_full": -0.0, "ant_ytd": 66.5, "act_ytd": 226.7, "diff_ytd": 160.2, "ant_fwd": 67466.6, "act_fwd": 67306.4, "diff_fwd": -160.2}, {"cat": "COPS", "aop_full": 20517.7, "ant_full": 20517.7, "act_full": 20517.7, "diff_full": 0.0, "dpct_full": 0.0, "ant_ytd": 303.0, "act_ytd": 214.9, "diff_ytd": -88.1, "ant_fwd": 20214.7, "act_fwd": 20302.8, "diff_fwd": 88.1}, {"cat": "ISD", "aop_full": 22338.9, "ant_full": 19253.9, "act_full": 19253.9, "diff_full": 0.0, "dpct_full": 0.0, "ant_ytd": 550.2, "act_ytd": 737.6, "diff_ytd": 187.4, "ant_fwd": 18703.7, "act_fwd": 18516.3, "diff_fwd": -187.4}, {"cat": "WAYS", "aop_full": 6725.0, "ant_full": 6725.0, "act_full": 6725.0, "diff_full": 0.0, "dpct_full": 0.0, "ant_ytd": 967.5, "act_ytd": 1184.0, "diff_ytd": 216.6, "ant_fwd": 5757.5, "act_fwd": 5541.0, "diff_fwd": -216.6}, {"cat": "Reposicion", "aop_full": 6093.5, "ant_full": 6093.5, "act_full": 6093.5, "diff_full": 0.0, "dpct_full": 0.0, "ant_ytd": 183.5, "act_ytd": 243.8, "diff_ytd": 60.2, "ant_fwd": 5909.9, "act_fwd": 5849.7, "diff_fwd": -60.2}, {"cat": "E-Commerce", "aop_full": 5398.4, "ant_full": 5398.4, "act_full": 5398.4, "diff_full": -0.0, "dpct_full": -0.0, "ant_ytd": 245.2, "act_ytd": 183.7, "diff_ytd": -61.5, "ant_fwd": 5153.3, "act_fwd": 5214.7, "diff_fwd": 61.5}, {"cat": "Asset Protection", "aop_full": 3192.0, "ant_full": 3192.0, "act_full": 3192.0, "diff_full": -0.0, "dpct_full": -0.0, "ant_ytd": 174.2, "act_ytd": 176.1, "diff_ytd": 1.9, "ant_fwd": 3017.8, "act_fwd": 3015.9, "diff_fwd": -1.9}, {"cat": "Tesoreria", "aop_full": 1800.0, "ant_full": 1800.0, "act_full": 1800.0, "diff_full": 0.0, "dpct_full": 0.0, "ant_ytd": 0.0, "act_ytd": 0.0, "diff_ytd": 0.0, "ant_fwd": 1800.0, "act_fwd": 1800.0, "diff_fwd": 0.0}, {"cat": "Otros", "aop_full": -13803.7, "ant_full": -10718.7, "act_full": -10718.7, "diff_full": 0.0, "dpct_full": -0.0, "ant_ytd": 30.5, "act_ytd": 0.0, "diff_ytd": -30.5, "ant_fwd": -10749.2, "act_fwd": -10718.7, "diff_fwd": 30.5}], "ant_formato": [{"cat": "Lider", "aop_full": 103845.1, "ant_full": 85075.8, "act_full": 104803.7, "diff_full": 19727.9, "dpct_full": 23.2, "ant_ytd": 10802.2, "act_ytd": 10827.8, "diff_ytd": 25.6, "ant_fwd": 74273.5, "act_fwd": 93975.8, "diff_fwd": 19702.3}, {"cat": "Warehousing", "aop_full": 63537.0, "ant_full": -1034.0, "act_full": 63533.1, "diff_full": 64567.2, "dpct_full": -6244.1, "ant_ytd": 66.5, "act_ytd": 226.7, "diff_ytd": 160.2, "ant_fwd": -1100.5, "act_fwd": 63306.4, "diff_fwd": 64406.9}, {"cat": "Express", "aop_full": 46763.2, "ant_full": 38340.9, "act_full": 47243.6, "diff_full": 8902.7, "dpct_full": 23.2, "ant_ytd": 2993.0, "act_ytd": 3477.5, "diff_ytd": 484.5, "ant_fwd": 35347.9, "act_fwd": 43766.1, "diff_fwd": 8418.2}, {"cat": "Bodega", "aop_full": 44642.0, "ant_full": 36042.0, "act_full": 44036.0, "diff_full": 7994.0, "dpct_full": 22.2, "ant_ytd": 1828.6, "act_ytd": 2794.0, "diff_ytd": 965.4, "ant_fwd": 34213.4, "act_fwd": 41242.0, "diff_fwd": 7028.6}, {"cat": "Proyectos", "aop_full": 29459.0, "ant_full": 29617.8, "act_full": 29735.2, "diff_full": 117.4, "dpct_full": 0.4, "ant_ytd": 188.6, "act_ytd": 201.2, "diff_ytd": 12.6, "ant_fwd": 29429.2, "act_fwd": 29534.0, "diff_fwd": 104.8}, {"cat": "Home Office", "aop_full": 21101.9, "ant_full": 16705.9, "act_full": 16809.6, "diff_full": 103.7, "dpct_full": 0.6, "ant_ytd": 627.4, "act_ytd": 735.8, "diff_ytd": 108.4, "ant_fwd": 16078.5, "act_fwd": 16073.8, "diff_fwd": -4.7}, {"cat": "WAYS", "aop_full": 6725.0, "ant_full": 6325.0, "act_full": 6725.0, "diff_full": 400.0, "dpct_full": 6.3, "ant_ytd": 967.5, "act_ytd": 1184.0, "diff_ytd": 216.6, "ant_fwd": 5357.5, "act_fwd": 5541.0, "diff_fwd": 183.4}, {"cat": "Mayorista", "aop_full": 4329.1, "ant_full": 3500.0, "act_full": 3945.1, "diff_full": 445.1, "dpct_full": 12.7, "ant_ytd": 25.0, "act_ytd": 28.1, "diff_ytd": 3.1, "ant_fwd": 3475.0, "act_fwd": 3917.0, "diff_fwd": 441.9}, {"cat": "Otros", "aop_full": 0.0, "ant_full": 9029.4, "act_full": 3853.6, "diff_full": -5175.8, "dpct_full": -57.3, "ant_ytd": 236.4, "act_ytd": 44.7, "diff_ytd": -191.8, "ant_fwd": 8792.9, "act_fwd": 3808.9, "diff_fwd": -4984.0}, {"cat": "Sin Clasificar", "aop_full": 0.0, "ant_full": 94344.5, "act_full": -2737.6, "diff_full": -97082.1, "dpct_full": -102.9, "ant_ytd": 532.9, "act_ytd": 0.0, "diff_ytd": -532.9, "ant_fwd": 93811.6, "act_fwd": -2737.6, "diff_fwd": -96549.2}, {"cat": "Retail", "aop_full": -9488.4, "ant_full": -7033.1, "act_full": -7033.1, "diff_full": 0.0, "dpct_full": -0.0, "ant_ytd": 0.0, "act_ytd": 0.0, "diff_ytd": 0.0, "ant_fwd": -7033.1, "act_fwd": -7033.1, "diff_fwd": 0.0}], "hist_fcsts": ["AOP FINAL", "FCST FEBRERO", "FCST MARZO"]};
+const D = {"kpi": {"AOP_YTD": 25481.3, "AOP_FWD": 285432.7, "AOP_FULL": 310914.0, "FCST_YTD": 19519.8, "FCST_FWD": 291394.3, "FCST_FULL": 310914.1, "DESV_YTD": -5961.5, "DESV_FWD": 5961.6, "DESV_FULL": 0.1, "DPCT_YTD": -23.4, "DPCT_FWD": 2.1, "DPCT_FULL": 0.0}, "tipo_capex": [{"cat": "Supply Chain", "aop_ytd": 5040.3, "fcst_ytd": 417.5, "desv_ytd": -4622.8, "dpct_ytd": -91.7, "aop_fwd": 91951.8, "fcst_fwd": 96582.0, "desv_fwd": 4630.2, "dpct_fwd": 5.0, "aop_full": 96992.1, "fcst_full": 96999.5, "desv_full": 7.4, "dpct_full": 0.0}, {"cat": "Remodelacion Full", "aop_ytd": 6894.3, "fcst_ytd": 8504.4, "desv_ytd": 1610.1, "dpct_ytd": 23.4, "aop_fwd": 71691.8, "fcst_fwd": 68797.2, "desv_fwd": -2894.6, "dpct_fwd": -4.0, "aop_full": 78586.1, "fcst_full": 77301.6, "desv_full": -1284.5, "dpct_full": -1.6}, {"cat": "New Stores Proyecto", "aop_ytd": 4077.1, "fcst_ytd": 2997.1, "desv_ytd": -1080.0, "dpct_ytd": -26.5, "aop_fwd": 34184.8, "fcst_fwd": 35221.4, "desv_fwd": 1036.5, "dpct_fwd": 3.0, "aop_full": 38261.9, "fcst_full": 38218.5, "desv_full": -43.4, "dpct_full": -0.1}, {"cat": "EUBI", "aop_ytd": 3618.2, "fcst_ytd": 1775.8, "desv_ytd": -1842.4, "dpct_ytd": -50.9, "aop_fwd": 25085.8, "fcst_fwd": 26228.9, "desv_fwd": 1143.0, "dpct_fwd": 4.6, "aop_full": 28704.1, "fcst_full": 28004.7, "desv_full": -699.4, "dpct_full": -2.4}, {"cat": "ISD", "aop_ytd": 1750.6, "fcst_ytd": 737.6, "desv_ytd": -1013.0, "dpct_ytd": -57.9, "aop_fwd": 20588.2, "fcst_fwd": 18516.3, "desv_fwd": -2071.9, "dpct_fwd": -10.1, "aop_full": 22338.9, "fcst_full": 19253.9, "desv_full": -3084.9, "dpct_full": -13.8}, {"cat": "Home Office", "aop_ytd": 0.0, "fcst_ytd": 75.9, "desv_ytd": 75.9, "dpct_ytd": 0.0, "aop_fwd": 14526.8, "fcst_fwd": 14450.9, "desv_fwd": -75.9, "dpct_fwd": -0.5, "aop_full": 14526.8, "fcst_full": 14526.8, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "Mantencion", "aop_ytd": 0.0, "fcst_ytd": 851.1, "desv_ytd": 851.1, "dpct_ytd": 0.0, "aop_fwd": 12210.5, "fcst_fwd": 11359.5, "desv_fwd": -851.0, "dpct_fwd": -7.0, "aop_full": 12210.5, "fcst_full": 12210.5, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "Compliance", "aop_ytd": 1472.8, "fcst_ytd": 2351.2, "desv_ytd": 878.4, "dpct_ytd": 59.6, "aop_fwd": 7584.5, "fcst_fwd": 8738.7, "desv_fwd": 1154.1, "dpct_fwd": 15.2, "aop_full": 9057.3, "fcst_full": 11089.9, "desv_full": 2032.6, "dpct_full": 22.4}, {"cat": "WAYS", "aop_ytd": 1060.0, "fcst_ytd": 1184.0, "desv_ytd": 124.0, "dpct_ytd": 11.7, "aop_fwd": 5665.0, "fcst_fwd": 5541.0, "desv_fwd": -124.0, "dpct_fwd": -2.2, "aop_full": 6725.0, "fcst_full": 6725.0, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "Reposicion", "aop_ytd": 682.2, "fcst_ytd": 243.8, "desv_ytd": -438.5, "dpct_ytd": -64.3, "aop_fwd": 5411.2, "fcst_fwd": 5849.7, "desv_fwd": 438.5, "dpct_fwd": 8.1, "aop_full": 6093.5, "fcst_full": 6093.5, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "E-Commerce", "aop_ytd": 389.0, "fcst_ytd": 183.7, "desv_ytd": -205.3, "dpct_ytd": -52.8, "aop_fwd": 5009.4, "fcst_fwd": 5214.7, "desv_fwd": 205.3, "dpct_fwd": 4.1, "aop_full": 5398.4, "fcst_full": 5398.4, "desv_full": -0.0, "dpct_full": -0.0}, {"cat": "Asset Protection", "aop_ytd": 344.3, "fcst_ytd": 176.1, "desv_ytd": -168.2, "dpct_ytd": -48.9, "aop_fwd": 2847.7, "fcst_fwd": 3015.9, "desv_fwd": 168.2, "dpct_fwd": 5.9, "aop_full": 3192.0, "fcst_full": 3192.0, "desv_full": -0.0, "dpct_full": -0.0}, {"cat": "Otros", "aop_ytd": 152.4, "fcst_ytd": 21.7, "desv_ytd": -130.7, "dpct_ytd": -85.8, "aop_fwd": 2793.1, "fcst_fwd": 2911.3, "desv_fwd": 118.2, "dpct_fwd": 4.2, "aop_full": 2945.5, "fcst_full": 2932.9, "desv_full": -12.5, "dpct_full": -0.4}, {"cat": "ISM", "aop_ytd": 0.0, "fcst_ytd": 0.0, "desv_ytd": 0.0, "dpct_ytd": 0.0, "aop_fwd": -4000.0, "fcst_fwd": -4000.0, "desv_fwd": 0.0, "dpct_fwd": -0.0, "aop_full": -4000.0, "fcst_full": -4000.0, "desv_full": 0.0, "dpct_full": -0.0}, {"cat": "Challenge", "aop_ytd": 0.0, "fcst_ytd": 0.0, "desv_ytd": 0.0, "dpct_ytd": 0.0, "aop_fwd": -10118.1, "fcst_fwd": -7033.1, "desv_fwd": 3085.0, "dpct_fwd": -30.5, "aop_full": -10118.1, "fcst_full": -7033.1, "desv_full": 3085.0, "dpct_full": -30.5}], "formato": [{"cat": "Lider", "aop_ytd": 10815.1, "fcst_ytd": 10827.8, "desv_ytd": 12.7, "dpct_ytd": 0.1, "aop_fwd": 93030.1, "fcst_fwd": 93975.8, "desv_fwd": 945.8, "dpct_fwd": 1.0, "aop_full": 103845.1, "fcst_full": 104803.7, "desv_full": 958.5, "dpct_full": 0.9}, {"cat": "Warehousing", "aop_ytd": 59.4, "fcst_ytd": 226.7, "desv_ytd": 167.3, "dpct_ytd": 281.5, "aop_fwd": 63477.6, "fcst_fwd": 63306.4, "desv_fwd": -171.2, "dpct_fwd": -0.3, "aop_full": 63537.0, "fcst_full": 63533.1, "desv_full": -3.9, "dpct_full": -0.0}, {"cat": "Express", "aop_ytd": 5671.2, "fcst_ytd": 3477.5, "desv_ytd": -2193.7, "dpct_ytd": -38.7, "aop_fwd": 41092.0, "fcst_fwd": 43766.1, "desv_fwd": 2674.1, "dpct_fwd": 6.5, "aop_full": 46763.2, "fcst_full": 47243.6, "desv_full": 480.4, "dpct_full": 1.0}, {"cat": "Bodega", "aop_ytd": 1780.5, "fcst_ytd": 2794.0, "desv_ytd": 1013.5, "dpct_ytd": 56.9, "aop_fwd": 42861.5, "fcst_fwd": 41242.0, "desv_fwd": -1619.6, "dpct_fwd": -3.8, "aop_full": 44642.0, "fcst_full": 44036.0, "desv_full": -606.1, "dpct_full": -1.4}, {"cat": "Proyectos", "aop_ytd": 4984.8, "fcst_ytd": 201.2, "desv_ytd": -4783.6, "dpct_ytd": -96.0, "aop_fwd": 24474.2, "fcst_fwd": 29534.0, "desv_fwd": 5059.8, "dpct_fwd": 20.7, "aop_full": 29459.0, "fcst_full": 29735.2, "desv_full": 276.2, "dpct_full": 0.9}, {"cat": "Home Office", "aop_ytd": 1004.5, "fcst_ytd": 735.8, "desv_ytd": -268.7, "dpct_ytd": -26.8, "aop_fwd": 20097.4, "fcst_fwd": 16073.8, "desv_fwd": -4023.7, "dpct_fwd": -20.0, "aop_full": 21101.9, "fcst_full": 16809.6, "desv_full": -4292.4, "dpct_full": -20.3}, {"cat": "WAYS", "aop_ytd": 1060.0, "fcst_ytd": 1184.0, "desv_ytd": 124.0, "dpct_ytd": 11.7, "aop_fwd": 5665.0, "fcst_fwd": 5541.0, "desv_fwd": -124.0, "dpct_fwd": -2.2, "aop_full": 6725.0, "fcst_full": 6725.0, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "Mayorista", "aop_ytd": 39.1, "fcst_ytd": 28.1, "desv_ytd": -11.0, "dpct_ytd": -28.2, "aop_fwd": 4289.9, "fcst_fwd": 3917.0, "desv_fwd": -373.0, "dpct_fwd": -8.7, "aop_full": 4329.1, "fcst_full": 3945.1, "desv_full": -384.0, "dpct_full": -8.9}, {"cat": "Otros", "aop_ytd": 0.0, "fcst_ytd": 44.7, "desv_ytd": 44.7, "dpct_ytd": 0.0, "aop_fwd": 0.0, "fcst_fwd": 3808.9, "desv_fwd": 3808.9, "dpct_fwd": 0.0, "aop_full": 0.0, "fcst_full": 3853.6, "desv_full": 3853.6, "dpct_full": 0.0}, {"cat": "Sin Clasificar", "aop_ytd": 0.0, "fcst_ytd": 0.0, "desv_ytd": 0.0, "dpct_ytd": 0.0, "aop_fwd": 0.0, "fcst_fwd": -2737.6, "desv_fwd": -2737.6, "dpct_fwd": 0.0, "aop_full": 0.0, "fcst_full": -2737.6, "desv_full": -2737.6, "dpct_full": 0.0}, {"cat": "Retail", "aop_ytd": 66.7, "fcst_ytd": 0.0, "desv_ytd": -66.7, "dpct_ytd": -100.0, "aop_fwd": -9555.0, "fcst_fwd": -7033.1, "desv_fwd": 2521.9, "dpct_fwd": -26.4, "aop_full": -9488.4, "fcst_full": -7033.1, "desv_full": 2455.2, "dpct_full": -25.9}], "equipo": [{"cat": "Inmobiliaria", "aop_ytd": 20795.2, "fcst_ytd": 16553.0, "desv_ytd": -4242.2, "dpct_ytd": -20.4, "aop_fwd": 170323.8, "fcst_fwd": 174566.1, "desv_fwd": 4242.2, "dpct_fwd": 2.5, "aop_full": 191119.0, "fcst_full": 191119.1, "desv_full": 0.1, "dpct_full": 0.0}, {"cat": "Supply Equipment", "aop_ytd": 55.5, "fcst_ytd": 226.7, "desv_ytd": 171.2, "dpct_ytd": 308.2, "aop_fwd": 67477.6, "fcst_fwd": 67306.4, "desv_fwd": -171.2, "dpct_fwd": -0.3, "aop_full": 67533.1, "fcst_full": 67533.1, "desv_full": -0.0, "dpct_full": -0.0}, {"cat": "COPS", "aop_ytd": 352.0, "fcst_ytd": 214.9, "desv_ytd": -137.1, "dpct_ytd": -39.0, "aop_fwd": 20165.7, "fcst_fwd": 20302.8, "desv_fwd": 137.1, "dpct_fwd": 0.7, "aop_full": 20517.7, "fcst_full": 20517.7, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "ISD", "aop_ytd": 1750.6, "fcst_ytd": 737.6, "desv_ytd": -1013.0, "dpct_ytd": -57.9, "aop_fwd": 20588.2, "fcst_fwd": 18516.3, "desv_fwd": -2071.9, "dpct_fwd": -10.1, "aop_full": 22338.9, "fcst_full": 19253.9, "desv_full": -3084.9, "dpct_full": -13.8}, {"cat": "WAYS", "aop_ytd": 1060.0, "fcst_ytd": 1184.0, "desv_ytd": 124.0, "dpct_ytd": 11.7, "aop_fwd": 5665.0, "fcst_fwd": 5541.0, "desv_fwd": -124.0, "dpct_fwd": -2.2, "aop_full": 6725.0, "fcst_full": 6725.0, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "Reposicion", "aop_ytd": 682.2, "fcst_ytd": 243.8, "desv_ytd": -438.5, "dpct_ytd": -64.3, "aop_fwd": 5411.2, "fcst_fwd": 5849.7, "desv_fwd": 438.5, "dpct_fwd": 8.1, "aop_full": 6093.5, "fcst_full": 6093.5, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "E-Commerce", "aop_ytd": 389.0, "fcst_ytd": 183.7, "desv_ytd": -205.3, "dpct_ytd": -52.8, "aop_fwd": 5009.4, "fcst_fwd": 5214.7, "desv_fwd": 205.3, "dpct_fwd": 4.1, "aop_full": 5398.4, "fcst_full": 5398.4, "desv_full": -0.0, "dpct_full": -0.0}, {"cat": "Asset Protection", "aop_ytd": 344.3, "fcst_ytd": 176.1, "desv_ytd": -168.2, "dpct_ytd": -48.9, "aop_fwd": 2847.7, "fcst_fwd": 3015.9, "desv_fwd": 168.2, "dpct_fwd": 5.9, "aop_full": 3192.0, "fcst_full": 3192.0, "desv_full": -0.0, "dpct_full": -0.0}, {"cat": "Tesoreria", "aop_ytd": 0.0, "fcst_ytd": 0.0, "desv_ytd": 0.0, "dpct_ytd": 0.0, "aop_fwd": 1800.0, "fcst_fwd": 1800.0, "desv_fwd": 0.0, "dpct_fwd": 0.0, "aop_full": 1800.0, "fcst_full": 1800.0, "desv_full": 0.0, "dpct_full": 0.0}, {"cat": "Otros", "aop_ytd": 52.4, "fcst_ytd": 0.0, "desv_ytd": -52.4, "dpct_ytd": -100.0, "aop_fwd": -13856.1, "fcst_fwd": -10718.7, "desv_fwd": 3137.4, "dpct_fwd": -22.6, "aop_full": -13803.7, "fcst_full": -10718.7, "desv_full": 3085.0, "dpct_full": -22.3}], "tipo": [{"cat": "Equipamiento", "aop_ytd": 12699.2, "fcst_ytd": 9534.7, "desv_ytd": -3164.5, "dpct_ytd": -24.9, "aop_fwd": 183166.0, "fcst_fwd": 178685.0, "desv_fwd": -4481.0, "dpct_fwd": -2.4, "aop_full": 195865.1, "fcst_full": 188219.7, "desv_full": -7645.5, "dpct_full": -3.9}, {"cat": "Infraestructura", "aop_ytd": 13397.5, "fcst_ytd": 9985.1, "desv_ytd": -3412.4, "dpct_ytd": -25.5, "aop_fwd": 110815.5, "fcst_fwd": 114934.2, "desv_fwd": 4118.8, "dpct_fwd": 3.7, "aop_full": 124213.0, "fcst_full": 124919.4, "desv_full": 706.4, "dpct_full": 0.6}, {"cat": "TBD", "aop_ytd": -615.4, "fcst_ytd": 0.0, "desv_ytd": 615.4, "dpct_ytd": -100.0, "aop_fwd": -8548.7, "fcst_fwd": 0.0, "desv_fwd": 8548.7, "dpct_fwd": -100.0, "aop_full": -9164.2, "fcst_full": 0.0, "desv_full": 9164.2, "dpct_full": -100.0}, {"cat": "Ajuste", "aop_ytd": 0.0, "fcst_ytd": 0.0, "desv_ytd": 0.0, "dpct_ytd": 0.0, "aop_fwd": 0.0, "fcst_fwd": -2225.0, "desv_fwd": -2225.0, "dpct_fwd": 0.0, "aop_full": 0.0, "fcst_full": -2225.0, "desv_full": -2225.0, "dpct_full": 0.0}], "monthly_trend": [{"mes": "Enero", "mes_corto": "Ene", "aop": 10547.8, "fcst": 6427.4, "desv": -4120.4, "aop_cum": 10547.8, "fcst_cum": 6427.4, "desv_cum": -4120.4, "es_actual": false, "es_futuro": false}, {"mes": "Febrero", "mes_corto": "Feb", "aop": 14933.6, "fcst": 13092.5, "desv": -1841.1, "aop_cum": 25481.4, "fcst_cum": 19519.9, "desv_cum": -5961.5, "es_actual": false, "es_futuro": false}, {"mes": "Marzo", "mes_corto": "Mar", "aop": 17362.5, "fcst": 24827.6, "desv": 7465.1, "aop_cum": 42843.9, "fcst_cum": 44347.5, "desv_cum": 1503.6, "es_actual": true, "es_futuro": true}, {"mes": "Abril", "mes_corto": "Abr", "aop": 24388.9, "fcst": 31526.6, "desv": 7137.7, "aop_cum": 67232.8, "fcst_cum": 75874.1, "desv_cum": 8641.3, "es_actual": false, "es_futuro": true}, {"mes": "Mayo", "mes_corto": "May", "aop": 32061.8, "fcst": 24636.4, "desv": -7425.4, "aop_cum": 99294.6, "fcst_cum": 100510.5, "desv_cum": 1215.9, "es_actual": false, "es_futuro": true}, {"mes": "Junio", "mes_corto": "Jun", "aop": 40055.2, "fcst": 39955.2, "desv": -100.0, "aop_cum": 139349.8, "fcst_cum": 140465.7, "desv_cum": 1115.9, "es_actual": false, "es_futuro": true}, {"mes": "Julio", "mes_corto": "Jul", "aop": 38793.4, "fcst": 30419.4, "desv": -8374.0, "aop_cum": 178143.2, "fcst_cum": 170885.1, "desv_cum": -7258.1, "es_actual": false, "es_futuro": true}, {"mes": "Agosto", "mes_corto": "Ago", "aop": 28478.7, "fcst": 28874.9, "desv": 396.2, "aop_cum": 206621.9, "fcst_cum": 199760.0, "desv_cum": -6861.9, "es_actual": false, "es_futuro": true}, {"mes": "Septiembre", "mes_corto": "Sep", "aop": 25200.3, "fcst": 25012.5, "desv": -187.8, "aop_cum": 231822.2, "fcst_cum": 224772.5, "desv_cum": -7049.7, "es_actual": false, "es_futuro": true}, {"mes": "Octubre", "mes_corto": "Oct", "aop": 29143.3, "fcst": 30169.7, "desv": 1026.4, "aop_cum": 260965.5, "fcst_cum": 254942.2, "desv_cum": -6023.3, "es_actual": false, "es_futuro": true}, {"mes": "Noviembre", "mes_corto": "Nov", "aop": 29458.1, "fcst": 31434.9, "desv": 1976.8, "aop_cum": 290423.6, "fcst_cum": 286377.1, "desv_cum": -4046.5, "es_actual": false, "es_futuro": true}, {"mes": "Diciembre", "mes_corto": "Dic", "aop": 20490.3, "fcst": 24537.1, "desv": 4046.8, "aop_cum": 310913.9, "fcst_cum": 310914.2, "desv_cum": 0.3, "es_actual": false, "es_futuro": true}], "quarterly_data": [{"quarter": "Q1", "meses": "Ene / Feb / Mar", "aop": 42843.8, "fcst": 44347.4, "desv": 1503.6, "dpct": 3.5, "estado": "En Curso", "en_curso": true}, {"quarter": "Q2", "meses": "Abr / May / Jun", "aop": 96505.9, "fcst": 96118.2, "desv": -387.7, "dpct": -0.4, "estado": "Por Ejecutar", "en_curso": false}, {"quarter": "Q3", "meses": "Jul / Ago / Sep", "aop": 92472.5, "fcst": 84306.7, "desv": -8165.8, "dpct": -8.8, "estado": "Por Ejecutar", "en_curso": false}, {"quarter": "Q4", "meses": "Oct / Nov / Dic", "aop": 79091.7, "fcst": 86141.6, "desv": 7049.9, "dpct": 8.9, "estado": "Por Ejecutar", "en_curso": false}], "meses_ytd": ["Enero", "Febrero"], "meses_fwd": ["Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"], "fecha": "12/03/2026", "sel_aop": "AOP FINAL", "sel_fcst": "FCST MARZO", "sel_fcst_ant": "FCST FEBRERO", "mes_actual": "Marzo", "label_vs": "FCST MARZO vs AOP FINAL", "tiene_ant": true, "ant_equipo": [{"cat": "Inmobiliaria", "aop_full": 191119.0, "ant_full": 191119.0, "act_full": 191119.1, "diff_full": 0.1, "dpct_full": 0.0, "ant_ytd": 15747.5, "act_ytd": 16553.0, "diff_ytd": 805.5, "ant_fwd": 175371.5, "act_fwd": 174566.1, "diff_fwd": -805.5}, {"cat": "Supply Equipment", "aop_full": 67533.1, "ant_full": 67533.1, "act_full": 67533.1, "diff_full": -0.0, "dpct_full": -0.0, "ant_ytd": 66.5, "act_ytd": 226.7, "diff_ytd": 160.2, "ant_fwd": 67466.6, "act_fwd": 67306.4, "diff_fwd": -160.2}, {"cat": "COPS", "aop_full": 20517.7, "ant_full": 20517.7, "act_full": 20517.7, "diff_full": 0.0, "dpct_full": 0.0, "ant_ytd": 303.0, "act_ytd": 214.9, "diff_ytd": -88.1, "ant_fwd": 20214.7, "act_fwd": 20302.8, "diff_fwd": 88.1}, {"cat": "ISD", "aop_full": 22338.9, "ant_full": 19253.9, "act_full": 19253.9, "diff_full": 0.0, "dpct_full": 0.0, "ant_ytd": 550.2, "act_ytd": 737.6, "diff_ytd": 187.4, "ant_fwd": 18703.7, "act_fwd": 18516.3, "diff_fwd": -187.4}, {"cat": "WAYS", "aop_full": 6725.0, "ant_full": 6725.0, "act_full": 6725.0, "diff_full": 0.0, "dpct_full": 0.0, "ant_ytd": 967.5, "act_ytd": 1184.0, "diff_ytd": 216.6, "ant_fwd": 5757.5, "act_fwd": 5541.0, "diff_fwd": -216.6}, {"cat": "Reposicion", "aop_full": 6093.5, "ant_full": 6093.5, "act_full": 6093.5, "diff_full": 0.0, "dpct_full": 0.0, "ant_ytd": 183.5, "act_ytd": 243.8, "diff_ytd": 60.2, "ant_fwd": 5909.9, "act_fwd": 5849.7, "diff_fwd": -60.2}, {"cat": "E-Commerce", "aop_full": 5398.4, "ant_full": 5398.4, "act_full": 5398.4, "diff_full": -0.0, "dpct_full": -0.0, "ant_ytd": 245.2, "act_ytd": 183.7, "diff_ytd": -61.5, "ant_fwd": 5153.3, "act_fwd": 5214.7, "diff_fwd": 61.5}, {"cat": "Asset Protection", "aop_full": 3192.0, "ant_full": 3192.0, "act_full": 3192.0, "diff_full": -0.0, "dpct_full": -0.0, "ant_ytd": 174.2, "act_ytd": 176.1, "diff_ytd": 1.9, "ant_fwd": 3017.8, "act_fwd": 3015.9, "diff_fwd": -1.9}, {"cat": "Tesoreria", "aop_full": 1800.0, "ant_full": 1800.0, "act_full": 1800.0, "diff_full": 0.0, "dpct_full": 0.0, "ant_ytd": 0.0, "act_ytd": 0.0, "diff_ytd": 0.0, "ant_fwd": 1800.0, "act_fwd": 1800.0, "diff_fwd": 0.0}, {"cat": "Otros", "aop_full": -13803.7, "ant_full": -10718.7, "act_full": -10718.7, "diff_full": 0.0, "dpct_full": -0.0, "ant_ytd": 30.5, "act_ytd": 0.0, "diff_ytd": -30.5, "ant_fwd": -10749.2, "act_fwd": -10718.7, "diff_fwd": 30.5}], "ant_formato": [{"cat": "Lider", "aop_full": 103845.1, "ant_full": 85075.8, "act_full": 104803.7, "diff_full": 19727.9, "dpct_full": 23.2, "ant_ytd": 10802.2, "act_ytd": 10827.8, "diff_ytd": 25.6, "ant_fwd": 74273.5, "act_fwd": 93975.8, "diff_fwd": 19702.3}, {"cat": "Warehousing", "aop_full": 63537.0, "ant_full": -1034.0, "act_full": 63533.1, "diff_full": 64567.2, "dpct_full": -6244.1, "ant_ytd": 66.5, "act_ytd": 226.7, "diff_ytd": 160.2, "ant_fwd": -1100.5, "act_fwd": 63306.4, "diff_fwd": 64406.9}, {"cat": "Express", "aop_full": 46763.2, "ant_full": 38340.9, "act_full": 47243.6, "diff_full": 8902.7, "dpct_full": 23.2, "ant_ytd": 2993.0, "act_ytd": 3477.5, "diff_ytd": 484.5, "ant_fwd": 35347.9, "act_fwd": 43766.1, "diff_fwd": 8418.2}, {"cat": "Bodega", "aop_full": 44642.0, "ant_full": 36042.0, "act_full": 44036.0, "diff_full": 7994.0, "dpct_full": 22.2, "ant_ytd": 1828.6, "act_ytd": 2794.0, "diff_ytd": 965.4, "ant_fwd": 34213.4, "act_fwd": 41242.0, "diff_fwd": 7028.6}, {"cat": "Proyectos", "aop_full": 29459.0, "ant_full": 29617.8, "act_full": 29735.2, "diff_full": 117.4, "dpct_full": 0.4, "ant_ytd": 188.6, "act_ytd": 201.2, "diff_ytd": 12.6, "ant_fwd": 29429.2, "act_fwd": 29534.0, "diff_fwd": 104.8}, {"cat": "Home Office", "aop_full": 21101.9, "ant_full": 16705.9, "act_full": 16809.6, "diff_full": 103.7, "dpct_full": 0.6, "ant_ytd": 627.4, "act_ytd": 735.8, "diff_ytd": 108.4, "ant_fwd": 16078.5, "act_fwd": 16073.8, "diff_fwd": -4.7}, {"cat": "WAYS", "aop_full": 6725.0, "ant_full": 6325.0, "act_full": 6725.0, "diff_full": 400.0, "dpct_full": 6.3, "ant_ytd": 967.5, "act_ytd": 1184.0, "diff_ytd": 216.6, "ant_fwd": 5357.5, "act_fwd": 5541.0, "diff_fwd": 183.4}, {"cat": "Mayorista", "aop_full": 4329.1, "ant_full": 3500.0, "act_full": 3945.1, "diff_full": 445.1, "dpct_full": 12.7, "ant_ytd": 25.0, "act_ytd": 28.1, "diff_ytd": 3.1, "ant_fwd": 3475.0, "act_fwd": 3917.0, "diff_fwd": 441.9}, {"cat": "Otros", "aop_full": 0.0, "ant_full": 9029.4, "act_full": 3853.6, "diff_full": -5175.8, "dpct_full": -57.3, "ant_ytd": 236.4, "act_ytd": 44.7, "diff_ytd": -191.8, "ant_fwd": 8792.9, "act_fwd": 3808.9, "diff_fwd": -4984.0}, {"cat": "Sin Clasificar", "aop_full": 0.0, "ant_full": 94344.5, "act_full": -2737.6, "diff_full": -97082.1, "dpct_full": -102.9, "ant_ytd": 532.9, "act_ytd": 0.0, "diff_ytd": -532.9, "ant_fwd": 93811.6, "act_fwd": -2737.6, "diff_fwd": -96549.2}, {"cat": "Retail", "aop_full": -9488.4, "ant_full": -7033.1, "act_full": -7033.1, "diff_full": 0.0, "dpct_full": -0.0, "ant_ytd": 0.0, "act_ytd": 0.0, "diff_ytd": 0.0, "ant_fwd": -7033.1, "act_fwd": -7033.1, "diff_fwd": 0.0}], "hist_fcsts": ["AOP FINAL", "FCST FEBRERO", "FCST MARZO"], "tabla_lineas": [{"linea": "Remodels", "aop_ytd": 6894.3, "aop_ytg": 71691.8, "aop_full": 78586.2, "fcst_ytd": 8504.4, "fcst_ytg": 68797.2, "fcst_full": 77301.6, "feb_ytd": 2444.7, "feb_ytg": 74685.9, "feb_full": 77130.5}, {"linea": "Supply Equipment", "aop_ytd": 55.5, "aop_ytg": 67477.6, "aop_full": 67533.1, "fcst_ytd": 226.7, "fcst_ytg": 67306.4, "fcst_full": 67533.1, "feb_ytd": 10.9, "feb_ytg": 67522.2, "feb_full": 67533.1}, {"linea": "Supply CD", "aop_ytd": 4984.8, "aop_ytg": 24474.2, "aop_full": 29459.0, "fcst_ytd": 190.8, "fcst_ytg": 29275.6, "fcst_full": 29466.4, "feb_ytd": 278.1, "feb_ytg": 29389.6, "feb_full": 29667.8}, {"linea": "New Stores", "aop_ytd": 4077.1, "aop_ytg": 34184.8, "aop_full": 38261.9, "fcst_ytd": 2997.1, "fcst_ytg": 35221.4, "fcst_full": 38218.5, "feb_ytd": 882.8, "feb_ytg": 37239.0, "feb_full": 38121.9}, {"linea": "EUBI Productivity", "aop_ytd": 352.0, "aop_ytg": 20165.7, "aop_full": 20517.7, "fcst_ytd": 214.9, "fcst_ytg": 20302.8, "fcst_full": 20517.7, "feb_ytd": 3.4, "feb_ytg": 20514.3, "feb_full": 20517.7}, {"linea": "EUBI Asset M.", "aop_ytd": 3266.2, "aop_ytg": 4920.2, "aop_full": 8186.4, "fcst_ytd": 1560.9, "fcst_ytg": 5926.1, "fcst_full": 7487.0, "feb_ytd": 718.1, "feb_ytg": 6768.9, "feb_full": 7487.0}, {"linea": "ISD", "aop_ytd": 1750.6, "aop_ytg": 20588.2, "aop_full": 22338.9, "fcst_ytd": 737.6, "fcst_ytg": 18516.3, "fcst_full": 19253.9, "feb_ytd": 550.2, "feb_ytg": 18703.7, "feb_full": 19253.9}, {"linea": "Maintenance", "aop_ytd": 0.0, "aop_ytg": 12210.5, "aop_full": 12210.5, "fcst_ytd": 851.1, "fcst_ytg": 11359.5, "fcst_full": 12210.5, "feb_ytd": 122.0, "feb_ytg": 12149.2, "feb_full": 12271.2}, {"linea": "WAYS", "aop_ytd": 1060.0, "aop_ytg": 5665.0, "aop_full": 6725.0, "fcst_ytd": 1184.0, "fcst_ytg": 5541.0, "fcst_full": 6725.0, "feb_ytd": 603.9, "feb_ytg": 6121.1, "feb_full": 6725.0}, {"linea": "Compliance", "aop_ytd": 1472.8, "aop_ytg": 7584.6, "aop_full": 9057.4, "fcst_ytd": 2351.2, "fcst_ytg": 8738.6, "fcst_full": 11089.8, "feb_ytd": 446.5, "feb_ytg": 10643.4, "feb_full": 11089.8}, {"linea": "A. Protection", "aop_ytd": 344.3, "aop_ytg": 2847.7, "aop_full": 3192.0, "fcst_ytd": 176.1, "fcst_ytg": 3015.9, "fcst_full": 3192.0, "feb_ytd": 0.0, "feb_ytg": 3192.0, "feb_full": 3192.0}, {"linea": "E-Commerce", "aop_ytd": 389.0, "aop_ytg": 5009.5, "aop_full": 5398.5, "fcst_ytd": 183.7, "fcst_ytg": 5214.7, "fcst_full": 5398.4, "feb_ytd": 215.5, "feb_ytg": 5182.9, "feb_full": 5398.5}, {"linea": "Home Office", "aop_ytd": 0.0, "aop_ytg": 14526.8, "aop_full": 14526.8, "fcst_ytd": 75.9, "fcst_ytg": 14450.9, "fcst_full": 14526.8, "feb_ytd": 75.1, "feb_ytg": 14451.7, "feb_full": 14526.8}, {"linea": "Replenishment", "aop_ytd": 682.2, "aop_ytg": 5411.2, "aop_full": 6093.5, "fcst_ytd": 243.8, "fcst_ytg": 5849.7, "fcst_full": 6093.5, "feb_ytd": 73.2, "feb_ytg": 6020.3, "feb_full": 6093.5}, {"linea": "Others", "aop_ytd": 152.4, "aop_ytg": 2792.9, "aop_full": 2945.3, "fcst_ytd": 21.7, "fcst_ytg": 2911.1, "fcst_full": 2932.8, "feb_ytd": 25.0, "feb_ytg": 2913.4, "feb_full": 2938.4}, {"linea": "ISM", "aop_ytd": "0", "aop_ytg": "-4000", "aop_full": "-4000", "fcst_ytd": "0", "fcst_ytg": "-4000", "fcst_full": "-4000", "feb_ytd": "0", "feb_ytg": "-4000", "feb_full": "-4000"}, {"linea": "Challenge", "aop_ytd": 0.0, "aop_ytg": -10118.1, "aop_full": -10118.1, "fcst_ytd": 0.0, "fcst_ytg": -7033.1, "fcst_full": -7033.1, "feb_ytd": 0.0, "feb_ytg": -7033.1, "feb_full": -7033.1}], "tabla_mensual": [{"linea": "Remodels", "Enero": {"aop": 2516.7, "fcst": 2863.4, "feb": 2444.7}, "Febrero": {"aop": 4377.6, "fcst": 5641.1, "feb": 4911.8}, "Marzo": {"aop": 6715.4, "fcst": 4684.7, "feb": 6616.2}, "Abril": {"aop": 8708.6, "fcst": 7856.2, "feb": 8379.3}, "Mayo": {"aop": 10881.7, "fcst": 8167.1, "feb": 10650.0}, "Junio": {"aop": 10690.7, "fcst": 11126.8, "feb": 10499.7}, "Julio": {"aop": 10503.7, "fcst": 11090.8, "feb": 10254.6}, "Agosto": {"aop": 8824.0, "fcst": 9915.7, "feb": 8748.0}, "Septiembre": {"aop": 7299.3, "fcst": 7794.9, "feb": 6693.3}, "Octubre": {"aop": 4671.1, "fcst": 4917.8, "feb": 4368.9}, "Noviembre": {"aop": 2512.2, "fcst": 2288.0, "feb": 2573.7}, "Diciembre": {"aop": 885.0, "fcst": 955.2, "feb": 990.3}}, {"linea": "Supply Equipment", "Enero": {"aop": 0.0, "fcst": 10.9, "feb": 10.9}, "Febrero": {"aop": 55.5, "fcst": 215.8, "feb": 55.5}, "Marzo": {"aop": 369.5, "fcst": 10427.0, "feb": 708.7}, "Abril": {"aop": 2546.6, "fcst": 11975.1, "feb": 2546.6}, "Mayo": {"aop": 2125.9, "fcst": 1985.9, "feb": 2125.9}, "Junio": {"aop": 15875.7, "fcst": 6355.2, "feb": 15525.6}, "Julio": {"aop": 15372.0, "fcst": 6022.8, "feb": 15372.0}, "Agosto": {"aop": 1926.2, "fcst": 1392.5, "feb": 1926.2}, "Septiembre": {"aop": 1958.0, "fcst": 1868.0, "feb": 1958.0}, "Octubre": {"aop": 9426.0, "fcst": 9402.3, "feb": 9426.0}, "Noviembre": {"aop": 10979.9, "fcst": 10979.9, "feb": 10979.9}, "Diciembre": {"aop": 6897.7, "fcst": 6897.7, "feb": 6897.7}}, {"linea": "Supply CD", "Enero": {"aop": 2492.4, "fcst": 78.1, "feb": 278.1}, "Febrero": {"aop": 2492.4, "fcst": 112.6, "feb": 100.0}, "Marzo": {"aop": 2492.4, "fcst": 1504.2, "feb": 2492.4}, "Abril": {"aop": 2492.4, "fcst": 3964.6, "feb": 2492.4}, "Mayo": {"aop": 2492.4, "fcst": 3934.0, "feb": 2492.4}, "Junio": {"aop": 2492.4, "fcst": 2492.4, "feb": 2492.4}, "Julio": {"aop": 2492.4, "fcst": 2492.4, "feb": 2492.4}, "Agosto": {"aop": 2492.4, "fcst": 2492.4, "feb": 2492.4}, "Septiembre": {"aop": 2492.4, "fcst": 2492.4, "feb": 2492.4}, "Octubre": {"aop": 2492.4, "fcst": 2492.4, "feb": 2492.4}, "Noviembre": {"aop": 2492.4, "fcst": 3353.2, "feb": 2492.4}, "Diciembre": {"aop": 2042.7, "fcst": 4057.6, "feb": 6858.1}}, {"linea": "New Stores", "Enero": {"aop": 2100.5, "fcst": 883.0, "feb": 882.8}, "Febrero": {"aop": 1976.6, "fcst": 2114.1, "feb": 2051.9}, "Marzo": {"aop": 2889.3, "fcst": 1948.1, "feb": 2117.7}, "Abril": {"aop": 3682.0, "fcst": 2608.5, "feb": 2528.6}, "Mayo": {"aop": 3535.4, "fcst": 3426.5, "feb": 4030.3}, "Junio": {"aop": 4188.8, "fcst": 4681.3, "feb": 4754.6}, "Julio": {"aop": 4058.7, "fcst": 4168.9, "feb": 4374.3}, "Agosto": {"aop": 3791.6, "fcst": 4607.8, "feb": 4568.5}, "Septiembre": {"aop": 4339.9, "fcst": 3731.8, "feb": 3745.3}, "Octubre": {"aop": 3686.2, "fcst": 3523.1, "feb": 3311.2}, "Noviembre": {"aop": 2726.9, "fcst": 3568.8, "feb": 3078.5}, "Diciembre": {"aop": 1286.2, "fcst": 2956.4, "feb": 2678.2}}, {"linea": "EUBI Productivity", "Enero": {"aop": 139.4, "fcst": 3.4, "feb": 3.4}, "Febrero": {"aop": 212.6, "fcst": 211.5, "feb": 299.6}, "Marzo": {"aop": 523.5, "fcst": 380.8, "feb": 550.2}, "Abril": {"aop": 1071.8, "fcst": 26.7, "feb": 1068.4}, "Mayo": {"aop": 445.7, "fcst": 1419.8, "feb": 445.7}, "Junio": {"aop": 686.3, "fcst": 532.8, "feb": 686.3}, "Julio": {"aop": 1543.1, "fcst": 1340.5, "feb": 1543.0}, "Agosto": {"aop": 1876.9, "fcst": 1348.6, "feb": 1876.9}, "Septiembre": {"aop": 2314.9, "fcst": 2186.0, "feb": 2314.9}, "Octubre": {"aop": 4234.5, "fcst": 4598.0, "feb": 4234.5}, "Noviembre": {"aop": 3734.5, "fcst": 4345.3, "feb": 3734.5}, "Diciembre": {"aop": 3734.5, "fcst": 4124.2, "feb": 3760.2}}, {"linea": "EUBI Asset M.", "Enero": {"aop": 1809.3, "fcst": 285.7, "feb": 718.1}, "Febrero": {"aop": 1456.9, "fcst": 1275.2, "feb": 1705.2}, "Marzo": {"aop": 1418.7, "fcst": 1096.6, "feb": 1279.1}, "Abril": {"aop": 503.1, "fcst": 1366.4, "feb": 1121.2}, "Mayo": {"aop": 616.7, "fcst": 1476.4, "feb": 645.1}, "Junio": {"aop": 656.8, "fcst": 1324.3, "feb": 716.8}, "Julio": {"aop": 737.2, "fcst": 240.1, "feb": 567.2}, "Agosto": {"aop": 450.5, "fcst": 122.6, "feb": 340.5}, "Septiembre": {"aop": 236.5, "fcst": 72.3, "feb": 166.5}, "Octubre": {"aop": 174.0, "fcst": 63.3, "feb": 63.3}, "Noviembre": {"aop": 93.3, "fcst": 96.7, "feb": 96.7}, "Diciembre": {"aop": 33.3, "fcst": 67.3, "feb": 67.3}}, {"linea": "ISD", "Enero": {"aop": 4.1, "fcst": 550.2, "feb": 550.2}, "Febrero": {"aop": 1746.5, "fcst": 187.4, "feb": 0.0}, "Marzo": {"aop": 180.0, "fcst": 0.0, "feb": 0.0}, "Abril": {"aop": 1535.8, "fcst": 480.9, "feb": 480.9}, "Mayo": {"aop": 708.5, "fcst": 245.0, "feb": 245.0}, "Junio": {"aop": 570.2, "fcst": 288.6, "feb": 288.6}, "Julio": {"aop": 594.7, "fcst": 1528.4, "feb": 1547.2}, "Agosto": {"aop": 5827.8, "fcst": 6223.4, "feb": 6223.4}, "Septiembre": {"aop": 3515.7, "fcst": 2728.3, "feb": 2728.3}, "Octubre": {"aop": 1336.6, "fcst": 1724.2, "feb": 1724.2}, "Noviembre": {"aop": 3964.0, "fcst": 3303.0, "feb": 3303.0}, "Diciembre": {"aop": 2354.9, "fcst": 1994.7, "feb": 2163.3}}, {"linea": "Maintenance", "Enero": {"aop": 0.0, "fcst": 163.6, "feb": 122.0}, "Febrero": {"aop": 0.0, "fcst": 687.4, "feb": 602.3}, "Marzo": {"aop": 116.8, "fcst": 995.1, "feb": 213.9}, "Abril": {"aop": 1175.4, "fcst": 1196.4, "feb": 1279.9}, "Mayo": {"aop": 1343.1, "fcst": 1292.7, "feb": 1445.5}, "Junio": {"aop": 1343.1, "fcst": 1348.4, "feb": 1507.8}, "Julio": {"aop": 1443.1, "fcst": 1176.7, "feb": 1254.0}, "Agosto": {"aop": 1447.2, "fcst": 1231.4, "feb": 1303.8}, "Septiembre": {"aop": 1543.1, "fcst": 1258.1, "feb": 1418.0}, "Octubre": {"aop": 1469.0, "fcst": 1317.4, "feb": 1434.5}, "Noviembre": {"aop": 1141.7, "fcst": 757.9, "feb": 845.1}, "Diciembre": {"aop": 1188.0, "fcst": 785.5, "feb": 844.4}}, {"linea": "WAYS", "Enero": {"aop": 556.4, "fcst": 554.9, "feb": 603.9}, "Febrero": {"aop": 503.6, "fcst": 629.1, "feb": 363.6}, "Marzo": {"aop": 175.0, "fcst": 146.9, "feb": 287.7}, "Abril": {"aop": 1577.0, "fcst": 520.3, "feb": 499.6}, "Mayo": {"aop": 1018.7, "fcst": 1134.5, "feb": 1148.9}, "Junio": {"aop": 712.9, "fcst": 1534.4, "feb": 1206.2}, "Julio": {"aop": 586.6, "fcst": 1117.6, "feb": 389.8}, "Agosto": {"aop": 402.9, "fcst": 1028.0, "feb": 378.6}, "Septiembre": {"aop": 116.7, "fcst": 509.2, "feb": 606.1}, "Octubre": {"aop": 116.7, "fcst": -44.9, "feb": 796.8}, "Noviembre": {"aop": 58.4, "fcst": -410.6, "feb": 443.8}, "Diciembre": {"aop": 900.0, "fcst": 5.4, "feb": 0.0}}, {"linea": "Compliance", "Enero": {"aop": 342.1, "fcst": 758.2, "feb": 446.5}, "Febrero": {"aop": 1130.7, "fcst": 1593.0, "feb": 1384.0}, "Marzo": {"aop": 1056.1, "fcst": 1040.5, "feb": 1681.4}, "Abril": {"aop": 848.3, "fcst": 1172.3, "feb": 1518.2}, "Mayo": {"aop": 1179.2, "fcst": 976.4, "feb": 1226.3}, "Junio": {"aop": 1953.8, "fcst": 1464.3, "feb": 691.0}, "Julio": {"aop": 777.7, "fcst": 682.8, "feb": 682.8}, "Agosto": {"aop": 687.7, "fcst": 542.0, "feb": 542.0}, "Septiembre": {"aop": 414.0, "fcst": 1019.4, "feb": 1009.4}, "Octubre": {"aop": 396.0, "fcst": 640.0, "feb": 640.0}, "Noviembre": {"aop": 0.0, "fcst": 640.0, "feb": 640.0}, "Diciembre": {"aop": 271.8, "fcst": 560.9, "feb": 628.3}}, {"linea": "A. Protection", "Enero": {"aop": 0.0, "fcst": 0.0, "feb": 0.0}, "Febrero": {"aop": 344.3, "fcst": 176.1, "feb": 174.2}, "Marzo": {"aop": 217.7, "fcst": 207.3, "feb": 254.6}, "Abril": {"aop": 152.4, "fcst": 178.9, "feb": 285.6}, "Mayo": {"aop": 0.0, "fcst": 143.1, "feb": 0.0}, "Junio": {"aop": 0.0, "fcst": 0.0, "feb": 0.0}, "Julio": {"aop": 0.0, "fcst": 0.0, "feb": 0.0}, "Agosto": {"aop": 238.9, "fcst": 238.9, "feb": 238.9}, "Septiembre": {"aop": 314.1, "fcst": 325.1, "feb": 314.1}, "Octubre": {"aop": 668.2, "fcst": 668.2, "feb": 668.2}, "Noviembre": {"aop": 628.2, "fcst": 628.2, "feb": 628.2}, "Diciembre": {"aop": 628.2, "fcst": 626.3, "feb": 628.2}}, {"linea": "E-Commerce", "Enero": {"aop": 194.5, "fcst": 117.6, "feb": 215.5}, "Febrero": {"aop": 194.5, "fcst": 66.2, "feb": 29.7}, "Marzo": {"aop": 725.7, "fcst": 18.5, "feb": 289.2}, "Abril": {"aop": 725.7, "fcst": 0.0, "feb": 703.7}, "Mayo": {"aop": 684.7, "fcst": 172.5, "feb": 858.0}, "Junio": {"aop": 684.7, "fcst": 172.5, "feb": 831.5}, "Julio": {"aop": 870.0, "fcst": 1182.9, "feb": 770.4}, "Agosto": {"aop": 553.5, "fcst": 327.8, "feb": 553.5}, "Septiembre": {"aop": 185.3, "fcst": 906.6, "feb": 490.4}, "Octubre": {"aop": 193.3, "fcst": 797.8, "feb": 193.3}, "Noviembre": {"aop": 193.3, "fcst": 797.8, "feb": 193.3}, "Diciembre": {"aop": 193.3, "fcst": 838.2, "feb": 269.9}}, {"linea": "Home Office", "Enero": {"aop": 0.0, "fcst": 75.1, "feb": 75.1}, "Febrero": {"aop": 0.0, "fcst": 0.8, "feb": 0.0}, "Marzo": {"aop": 0.0, "fcst": 61.1, "feb": 0.0}, "Abril": {"aop": 0.0, "fcst": 0.0, "feb": 0.0}, "Mayo": {"aop": 7626.8, "fcst": 0.0, "feb": 0.0}, "Junio": {"aop": 500.0, "fcst": 7489.7, "feb": 7551.7}, "Julio": {"aop": 500.0, "fcst": 500.0, "feb": 500.0}, "Agosto": {"aop": 700.0, "fcst": 500.0, "feb": 500.0}, "Septiembre": {"aop": 1000.0, "fcst": 1000.0, "feb": 1000.0}, "Octubre": {"aop": 1200.0, "fcst": 1200.0, "feb": 1200.0}, "Noviembre": {"aop": 1500.0, "fcst": 1700.0, "feb": 1700.0}, "Diciembre": {"aop": 1500.0, "fcst": 2000.0, "feb": 2000.0}}, {"linea": "Replenishment", "Enero": {"aop": 341.1, "fcst": 73.2, "feb": 73.2}, "Febrero": {"aop": 341.1, "fcst": 170.6, "feb": 110.4}, "Marzo": {"aop": 341.1, "fcst": 2316.8, "feb": 2069.6}, "Abril": {"aop": 341.1, "fcst": 95.4, "feb": 95.4}, "Mayo": {"aop": 341.1, "fcst": 95.4, "feb": 95.4}, "Junio": {"aop": 2341.1, "fcst": 2769.9, "feb": 3077.4}, "Julio": {"aop": 341.1, "fcst": 95.4, "feb": 95.4}, "Agosto": {"aop": 341.1, "fcst": 95.4, "feb": 95.4}, "Septiembre": {"aop": 341.1, "fcst": 95.4, "feb": 95.4}, "Octubre": {"aop": 341.1, "fcst": 95.4, "feb": 95.4}, "Noviembre": {"aop": 341.1, "fcst": 95.4, "feb": 95.4}, "Diciembre": {"aop": 341.1, "fcst": 95.4, "feb": 95.4}}, {"linea": "Others", "Enero": {"aop": 51.2, "fcst": 10.1, "feb": 25.0}, "Febrero": {"aop": 101.2, "fcst": 11.6, "feb": 30.5}, "Marzo": {"aop": 141.2, "fcst": 0.0, "feb": 151.2}, "Abril": {"aop": 98.2, "fcst": 85.0, "feb": 191.2}, "Mayo": {"aop": 131.2, "fcst": 167.0, "feb": 159.0}, "Junio": {"aop": 131.2, "fcst": 200.7, "feb": 148.5}, "Julio": {"aop": 422.8, "fcst": 384.4, "feb": 376.8}, "Agosto": {"aop": 396.8, "fcst": 441.9, "feb": 362.8}, "Septiembre": {"aop": 362.8, "fcst": 413.5, "feb": 362.8}, "Octubre": {"aop": 369.5, "fcst": 406.2, "feb": 369.5}, "Noviembre": {"aop": 369.5, "fcst": 406.2, "feb": 369.5}, "Diciembre": {"aop": 369.5, "fcst": 406.2, "feb": 391.4}}, {"linea": "ISM", "Enero": {"aop": "0", "fcst": "0", "feb": "0"}, "Febrero": {"aop": "0", "fcst": "0", "feb": "0"}, "Marzo": {"aop": "0", "fcst": "0", "feb": "0"}, "Abril": {"aop": "0", "fcst": "0", "feb": "0"}, "Mayo": {"aop": "0", "fcst": "0", "feb": "0"}, "Junio": {"aop": "0", "fcst": "0", "feb": "0"}, "Julio": {"aop": "-500", "fcst": "-500", "feb": "-500"}, "Agosto": {"aop": "-500", "fcst": "-500", "feb": "-500"}, "Septiembre": {"aop": "-400", "fcst": "-400", "feb": "-400"}, "Octubre": {"aop": "-750", "fcst": "-750", "feb": "-750"}, "Noviembre": {"aop": "-850", "fcst": "-850", "feb": "-850"}, "Diciembre": {"aop": "-1000", "fcst": "-1000", "feb": "-1000"}}, {"linea": "Challenge", "Enero": {"aop": 0.0, "fcst": 0.0, "feb": 0.0}, "Febrero": {"aop": 0.0, "fcst": 0.0, "feb": 0.0}, "Marzo": {"aop": 0.0, "fcst": 0.0, "feb": 0.0}, "Abril": {"aop": -1069.4, "fcst": 0.0, "feb": 0.0}, "Mayo": {"aop": -1069.4, "fcst": 0.0, "feb": 0.0}, "Junio": {"aop": -2772.5, "fcst": -1826.4, "feb": -1826.4}, "Julio": {"aop": -949.6, "fcst": -1104.4, "feb": -949.6}, "Agosto": {"aop": -978.7, "fcst": -1133.5, "feb": -978.7}, "Septiembre": {"aop": -833.8, "fcst": -988.5, "feb": -833.8}, "Octubre": {"aop": -881.4, "fcst": -881.4, "feb": -881.4}, "Noviembre": {"aop": -427.2, "fcst": -264.9, "feb": -427.2}, "Diciembre": {"aop": -1136.0, "fcst": -834.0, "feb": -1136.0}}], "meses_es": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"], "meses_ytg": ["Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]};
 
 // ---- helpers ----
 function fm(v){return (v||0).toLocaleString('es-CL',{minimumFractionDigits:1,maximumFractionDigits:1})+' M';}
@@ -463,13 +495,12 @@ document.querySelectorAll('.chart-title').forEach(el=>{
   if(el.id==='fmt-chart-title') el.textContent=`Por Formato \u2014 ${D.sel_aop} vs ${D.sel_fcst} \u2014 A\u00f1o Completo (M CLP)`;
   if(el.id==='eq-chart-title')  el.textContent=`Por Equipo \u2014 ${D.sel_aop} vs ${D.sel_fcst} \u2014 A\u00f1o Completo (M CLP)`;
 });
-['fmt-lbl-aop','eq-lbl-aop-tab','res-lbl-aop','tend-lbl-aop'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=D.sel_aop; });
-['fmt-lbl-fcst','eq-lbl-fcst-tab','res-lbl-fcst','tend-lbl-fcst'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=D.sel_fcst; });
+['fmt-lbl-aop','res-lbl-aop','tend-lbl-aop'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=D.sel_aop; });
+['fmt-lbl-fcst','res-lbl-fcst','tend-lbl-fcst'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=D.sel_fcst; });
 
 buildBarChart('bar_tipo_capex', D.tipo_capex, 'aop_full','fcst_full','cat');
 buildBarChart('bar_formato',    D.formato,    'aop_full','fcst_full','cat');
 buildBarChart('bar_fmt_full',   D.formato,    'aop_full','fcst_full','cat');
-buildBarChart('bar_eq_full',    D.equipo,     'aop_full','fcst_full','cat');
 
 // ---- Pivot table (labels dinámicos de periodos) ----
 function buildPivotTable(tableId, data, dimLabel){
@@ -527,7 +558,6 @@ function buildPivotTable(tableId, data, dimLabel){
 }
 
 buildPivotTable('tbl_formato',    D.formato,    'Formato');
-buildPivotTable('tbl_equipo',     D.equipo,     'Equipo');
 
 // ================================================================
 // TENDENCIA MENSUAL — Grafico de lineas SVG
@@ -895,214 +925,298 @@ renderLineChart();
 buildQuarterlySection();
 
 // ============================================================
-// TAB: FCST vs ANTERIOR
+// TAB: FCST vs ANTERIOR — por línea capex (desde BBDD_TABLA)
 // ============================================================
 function buildAntTab() {
   if (!D.tiene_ant) {
-    document.getElementById('ant-container').style.display = 'none';
-    document.getElementById('ant-no-data').style.display   = 'block';
+    const noData = document.getElementById('ant-no-data');
+    const cont   = document.getElementById('ant-container');
+    if(noData) noData.style.display='block';
+    if(cont)   cont.style.display='none';
     return;
   }
-  const labelLt = `${D.sel_fcst_ant} vs ${D.sel_fcst}`;
-  document.getElementById('ant-label-equipo').textContent = labelLt;
-  document.getElementById('ant-label-formato').textContent = labelLt;
-  document.getElementById('ant-th-ant').textContent  = D.sel_fcst_ant;
-  document.getElementById('ant-th-act').textContent  = D.sel_fcst;
+  const lineas = D.tabla_lineas || [];
+  const febNm  = D.sel_fcst_ant || 'FCST Ant.';
+  const marNm  = D.sel_fcst;
+  const aopNm  = D.sel_aop;
 
-  // Summary box: total del FULL
-  const sumAnt = (D.ant_equipo||[]).reduce((a,r)=>a+r.ant_full,0);
-  const sumAct = (D.ant_equipo||[]).reduce((a,r)=>a+r.act_full,0);
-  const sumDiff = sumAct - sumAnt;
-  const sumDpct = sumAnt ? ((sumDiff/sumAnt)*100) : 0;
-  const sumAOP  = (D.ant_equipo||[]).reduce((a,r)=>a+r.aop_full,0);
-  const dVsAop  = sumAct - sumAOP;
-  const sb = document.getElementById('ant-summary-box');
-  if (sb) sb.innerHTML = `
-    <div class="sb-item"><div class="sb-label">AOP Full Year</div><div class="sb-val">${fm(sumAOP)}</div></div>
-    <div class="sb-item"><div class="sb-label">${D.sel_fcst_ant}</div><div class="sb-val">${fm(sumAnt)}</div></div>
-    <div class="sb-item"><div class="sb-label">${D.sel_fcst}</div><div class="sb-val">${fm(sumAct)}</div></div>
-    <div class="sb-item">
-      <div class="sb-label">Var. ${D.sel_fcst_ant} → ${D.sel_fcst}</div>
-      <div class="sb-val" style="color:${sumDiff>0.5?'#FF8080':sumDiff<-0.5?'#90EE90':'#ddd'}">${sumDiff>0?'+':''}${sumDiff.toFixed(1)} M (${sumDiff>0?'+':''}${sumDpct.toFixed(1)}%)</div>
-    </div>
-    <div class="sb-item">
-      <div class="sb-label">Desv. vs AOP</div>
-      <div class="sb-val" style="color:${dVsAop>0.5?'#FF8080':dVsAop<-0.5?'#90EE90':'#ddd'}">${dVsAop>0?'+':''}${dVsAop.toFixed(1)} M</div>
+  // --- Etiquetas headers ---
+  ['ant-th-feb-ytd','ant-th-feb-ytg','ant-th-feb-full'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=febNm; });
+  ['ant-th-mar-ytd','ant-th-mar-ytg','ant-th-mar-full'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=marNm; });
+  const ytdLbl = D.meses_ytd&&D.meses_ytd.length ? 'YTD \u2014 '+D.meses_ytd.join(' / ') : 'YTD';
+  const ytgLbl = D.meses_ytg&&D.meses_ytg.length ? 'YTG \u2014 '+D.meses_ytg[0]+'\u2192'+D.meses_ytg[D.meses_ytg.length-1] : 'YTG';
+  const hYtd=document.getElementById('ant-hdr-ytd'); if(hYtd) hYtd.textContent=ytdLbl;
+  const hYtg=document.getElementById('ant-hdr-ytg'); if(hYtg) hYtg.textContent=ytgLbl;
+
+  // --- Summary banner ---
+  const totFebFull = lineas.reduce((s,r)=>s+(r.feb_full||0),0);
+  const totMarFull = lineas.reduce((s,r)=>s+(r.fcst_full||0),0);
+  const totDiff    = totMarFull - totFebFull;
+  const totDpct    = totFebFull ? totDiff/totFebFull*100 : 0;
+  const totAop     = lineas.reduce((s,r)=>s+(r.aop_full||0),0);
+  const dCls = totDiff>0.5?'desv-pos':totDiff<-0.5?'desv-neg':'desv-neu';
+  const box = document.getElementById('ant-summary-box');
+  if(box) box.innerHTML = `
+    <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center">
+      <div><div style="font-size:.72rem;color:#888;margin-bottom:2px">AOP A\u00f1o Completo</div><div style="font-size:1.2rem;font-weight:800;color:#003F87">${fm(totAop)}</div></div>
+      <div><div style="font-size:.72rem;color:#888;margin-bottom:2px">${febNm}</div><div style="font-size:1.2rem;font-weight:800;color:#555">${fm(totFebFull)}</div></div>
+      <div style="font-size:1.6rem;color:#ccc">\u2192</div>
+      <div><div style="font-size:.72rem;color:#888;margin-bottom:2px">${marNm}</div><div style="font-size:1.2rem;font-weight:800;color:#1A1A2E">${fm(totMarFull)}</div></div>
+      <span class="desv ${dCls}" style="font-size:1rem">${totDiff>0?'+':''}${totDiff.toFixed(1)} M &nbsp; (${totDiff>0?'+':''}${totDpct.toFixed(1)}%)</span>
     </div>`;
 
-  // Helper para construir tabla y grafico
-  function buildAntTable(data, tbodyId, barId) {
-    if (!data || !data.length) return;
-    const maxVal = Math.max(...data.map(d=>Math.max(d.ant_full||0, d.act_full||0))) || 1;
-    // Barras de variacion
-    const barEl = document.getElementById(barId);
-    if (barEl) {
-      barEl.innerHTML = data.map(d => {
-        const v = d.diff_full || 0;
-        const col = v > 0.5 ? '#C0392B' : (v < -0.5 ? '#1B7A3E' : '#888');
-        const pct = Math.min(Math.abs(v) / maxVal * 100, 100);
-        return `<div class="bar-row">
-          <div class="bar-label">${d.cat}</div>
-          <div class="bar-track" style="height:20px">
-            <div style="height:100%;width:${pct}%;background:${col};border-radius:4px;transition:width .4s;
-              display:flex;align-items:center;padding-left:6px">
-              <span style="font-size:.7rem;color:#fff;white-space:nowrap">${v>0?'+':''}${v.toFixed(1)} M</span>
-            </div>
-          </div>
-          <div class="bar-val">${fp(d.dpct_full)}</div>
-        </div>`;
-      }).join('');
-    }
-    // Tabla
-    const tbody = document.getElementById(tbodyId);
-    if (!tbody) return;
-    let html = '';
-    let totAop=0,totAnt=0,totAct=0,totYtdA=0,totYtdC=0,totFwdA=0,totFwdC=0;
-    data.forEach(d => {
-      totAop  += d.aop_full||0; totAnt += d.ant_full||0; totAct += d.act_full||0;
-      totYtdA += d.ant_ytd||0;  totYtdC += d.act_ytd||0;
-      totFwdA += d.ant_fwd||0;  totFwdC += d.act_fwd||0;
-      const dc  = desvClass(d.diff_full);
-      const dyt = desvClass((d.act_ytd||0)-(d.ant_ytd||0));
-      const dfw = desvClass((d.act_fwd||0)-(d.ant_fwd||0));
-      html += `<tr>
-        <td class="cat-col">${d.cat}</td>
-        <td>${fm(d.aop_full)}</td>
-        <td>${fm(d.ant_full)}</td>
-        <td>${fm(d.act_full)}</td>
-        <td class="${dc}">${d.diff_full>0?'+':''}${(d.diff_full||0).toFixed(1)} M</td>
-        <td class="${dc}">${fp(d.dpct_full||0)}</td>
-        <td>${fm(d.ant_ytd)}</td>
-        <td>${fm(d.act_ytd)}</td>
-        <td class="${dyt}">${((d.act_ytd||0)-(d.ant_ytd||0))>0?'+':''}${((d.act_ytd||0)-(d.ant_ytd||0)).toFixed(1)} M</td>
-        <td>${fm(d.ant_fwd)}</td>
-        <td>${fm(d.act_fwd)}</td>
-        <td class="${dfw}">${((d.act_fwd||0)-(d.ant_fwd||0))>0?'+':''}${((d.act_fwd||0)-(d.ant_fwd||0)).toFixed(1)} M</td>
-      </tr>`;
-    });
-    const totDiff = totAct-totAnt;
-    const totDpct = totAnt ? totDiff/totAnt*100 : 0;
-    html += `<tr class="total-row">
-      <td>TOTAL</td><td>${fm(totAop)}</td><td>${fm(totAnt)}</td><td>${fm(totAct)}</td>
-      <td>${totDiff>0?'+':''}${totDiff.toFixed(1)} M</td><td>${fp(totDpct)}</td>
-      <td>${fm(totYtdA)}</td><td>${fm(totYtdC)}</td><td>${((totYtdC-totYtdA)>0?'+':'')}${(totYtdC-totYtdA).toFixed(1)} M</td>
-      <td>${fm(totFwdA)}</td><td>${fm(totFwdC)}</td><td>${((totFwdC-totFwdA)>0?'+':'')}${(totFwdC-totFwdA).toFixed(1)} M</td>
-    </tr>`;
-    tbody.innerHTML = html;
-  }
-
-  buildAntTable(D.ant_equipo,  'ant-tbody-equipo',  'ant-bar-equipo');
-  buildAntTable(D.ant_formato, 'ant-tbody-formato', 'ant-bar-formato');
-}
-
-// ================================================================
-// TAB: EQUIPOS DETALLE (todos los periodos a la vez)
-// ================================================================
-function renderEquiposDetalle() {
-  const data   = D.equipo   || [];
-  const antD   = D.ant_equipo || [];
-  const antMap = {};
-  antD.forEach(r => { antMap[r.cat] = r; });
-
-  // Etiquetas headers
-  const ytdLbl  = D.meses_ytd.length ? 'YTD \u2014 ' + D.meses_ytd.join(' / ') : 'YTD';
-  const fwdLbl  = D.meses_fwd.length
-    ? 'Resto \u2014 ' + D.meses_fwd[0] + (D.meses_fwd.length>1?' \u2192 '+D.meses_fwd[D.meses_fwd.length-1]:'')
-    : 'FWD';
-  const hYtd = document.getElementById('eq-hdr-ytd'); if(hYtd) hYtd.textContent = ytdLbl + ' (M)';
-  const hFwd = document.getElementById('eq-hdr-fwd'); if(hFwd) hFwd.textContent = fwdLbl + ' (M)';
-
-  // Rellenar nombres de escenario en cabeceras
-  const antNm = D.tiene_ant ? (D.sel_fcst_ant||'FCST Ant') : 'Sin ant.';
-  ['eq-th-ant-ytd','eq-th-ant-fwd','eq-th-ant-full','eq-lbl-ant'].forEach(id=>{
-    const e=document.getElementById(id); if(e) e.textContent=antNm;
-  });
-  ['eq-th-act-ytd','eq-th-act-fwd','eq-th-act-full','eq-lbl-act'].forEach(id=>{
-    const e=document.getElementById(id); if(e) e.textContent=D.sel_fcst;
-  });
-  const elaop=document.getElementById('eq-lbl-aop'); if(elaop) elaop.textContent=D.sel_aop;
-
-  // Barras Año Completo (AOP / ANT / ACT)
-  const barEl  = document.getElementById('eq-bar-chart');
-  const maxVal = data.reduce((m,d)=>Math.max(m,d.aop_full||0,d.fcst_full||0,antMap[d.cat]?.act_full||0),0.001);
-  if (barEl) {
-    barEl.innerHTML = data.map(d=>{
-      const vAop=d.aop_full||0, vAct=d.fcst_full||0;
-      const vAnt=antMap[d.cat]?.act_full||0;
-      const pAop=vAop/maxVal*100, pAnt=vAnt/maxVal*100, pAct=vAct/maxVal*100;
-      return `<div class="bar-row" style="height:auto;padding:2px 0">
-        <div class="bar-label">${d.cat}</div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:2px">
-          <div style="height:8px;width:${pAop}%;background:#003F87;border-radius:3px" title="${D.sel_aop}: ${vAop.toFixed(1)}"></div>
-          <div style="height:8px;width:${pAnt}%;background:#9EADC8;border-radius:3px" title="${antNm}: ${vAnt.toFixed(1)}"></div>
-          <div style="height:8px;width:${pAct}%;background:#FFC220;border-radius:3px" title="${D.sel_fcst}: ${vAct.toFixed(1)}"></div>
+  // --- Gr\u00e1fico de barras: variaci\u00f3n full year por l\u00ednea ---
+  const maxAbs = lineas.reduce((m,r)=>Math.max(m,Math.abs((r.fcst_full||0)-(r.feb_full||0))),0.001);
+  const barEl  = document.getElementById('ant-bar-lineas');
+  const tTitle = document.getElementById('ant-chart-title');
+  if(tTitle) tTitle.textContent = `\u0192Variaci\u00f3n por L\u00ednea Capex \u2014 ${febNm} \u2192 ${marNm} (M CLP)`;
+  if(barEl) {
+    barEl.innerHTML = lineas.map(r=>{
+      const d = (r.fcst_full||0)-(r.feb_full||0);
+      const pct = Math.abs(d)/maxAbs*100;
+      const color = d>=0 ? '#1B7A3E' : '#C62828';
+      const bg    = d>=0 ? '#E8F5E9' : '#FFEBEE';
+      return `<div class="bar-row">
+        <div class="bar-label" style="width:140px;font-size:.76rem">${r.linea}</div>
+        <div style="flex:1;display:flex;align-items:center;gap:6px">
+          <div style="height:12px;width:${pct}%;background:${color};border-radius:3px;min-width:2px"></div>
+          <span style="font-size:.74rem;font-weight:700;color:${color}">${d>0?'+':''}${d.toFixed(1)} M</span>
         </div>
-        <div class="bar-val" style="width:90px;font-size:.7rem">${fm(vAct)}</div>
       </div>`;
     }).join('');
   }
 
-  // Tabla completa: YTD + FWD + Full (5 cols cada uno)
-  const tbody = document.getElementById('eq-tbody');
-  if (!tbody) return;
-
-  // Acumulados para fila total
-  let tot = {aopY:0,antY:0,actY:0, aopF:0,antF:0,actF:0, aopL:0,antL:0,actL:0};
-
+  // --- Tabla por l\u00ednea ---
+  const tbody = document.getElementById('ant-tbody-lineas');
+  if(!tbody) return;
+  let totals = {febY:0,marY:0, febG:0,marG:0, febL:0,marL:0};
   let html = '';
-  data.forEach(d => {
-    const a = antMap[d.cat] || {};
-    // YTD
-    const aopY=d.aop_ytd||0,  actY=d.fcst_ytd||0,  antY=a.ant_ytd||0;
-    const dvAopY=actY-aopY,   dvAntY=actY-antY;
-    // FWD
-    const aopF=d.aop_fwd||0,  actF=d.fcst_fwd||0,  antF=a.ant_fwd||0;
-    const dvAopF=actF-aopF,   dvAntF=actF-antF;
-    // FULL
-    const aopL=d.aop_full||0, actL=d.fcst_full||0, antL=a.act_full||0;
-    const dvAopL=actL-aopL,   dvAntL=actL-antL;
-
-    tot.aopY+=aopY; tot.antY+=antY; tot.actY+=actY;
-    tot.aopF+=aopF; tot.antF+=antF; tot.actF+=actF;
-    tot.aopL+=aopL; tot.antL+=antL; tot.actL+=actL;
-
-    const fv=(v,sign=true)=>(sign&&v>0?'+':'')+v.toFixed(1)+' M';
-    html += `<tr>
-      <td class="cat-col">${d.cat}</td>
-      <td>${fm(aopY)}</td>
-      <td>${D.tiene_ant?fm(antY):'-'}</td>
-      <td>${fm(actY)}</td>
-      <td class="${desvClass(dvAopY)}">${fv(dvAopY)}</td>
-      <td class="${desvClass(dvAntY)}">${D.tiene_ant?fv(dvAntY):'-'}</td>
-      <td>${fm(aopF)}</td>
-      <td>${D.tiene_ant?fm(antF):'-'}</td>
-      <td>${fm(actF)}</td>
-      <td class="${desvClass(dvAopF)}">${fv(dvAopF)}</td>
-      <td class="${desvClass(dvAntF)}">${D.tiene_ant?fv(dvAntF):'-'}</td>
-      <td>${fm(aopL)}</td>
-      <td>${D.tiene_ant?fm(antL):'-'}</td>
-      <td>${fm(actL)}</td>
-      <td class="${desvClass(dvAopL)}">${fv(dvAopL)}</td>
-      <td class="${desvClass(dvAntL)}">${D.tiene_ant?fv(dvAntL):'-'}</td>
+  lineas.forEach(r=>{
+    const febY=r.feb_ytd||0, marY=r.fcst_ytd||0, dvY=marY-febY, dpY=febY?dvY/febY*100:0;
+    const febG=r.feb_ytg||0, marG=r.fcst_ytg||0, dvG=marG-febG, dpG=febG?dvG/febG*100:0;
+    const febL=r.feb_full||0,marL=r.fcst_full||0, dvL=marL-febL, dpL=febL?dvL/febL*100:0;
+    totals.febY+=febY; totals.marY+=marY;
+    totals.febG+=febG; totals.marG+=marG;
+    totals.febL+=febL; totals.marL+=marL;
+    const isZero = febL===0 && marL===0;
+    html += `<tr style="${isZero?'opacity:.45':''}">
+      <td class="cat-col">${r.linea}</td>
+      <td>${fm(febY)}</td><td>${fm(marY)}</td>
+      <td class="${desvClass(dvY)}">${dvY>0?'+':''}${dvY.toFixed(1)}</td>
+      <td class="${desvClass(dvY)}">${dvY>0?'+':''}${dpY.toFixed(1)}%</td>
+      <td>${fm(febG)}</td><td>${fm(marG)}</td>
+      <td class="${desvClass(dvG)}">${dvG>0?'+':''}${dvG.toFixed(1)}</td>
+      <td class="${desvClass(dvG)}">${dvG>0?'+':''}${dpG.toFixed(1)}%</td>
+      <td>${fm(febL)}</td><td>${fm(marL)}</td>
+      <td class="${desvClass(dvL)}">${dvL>0?'+':''}${dvL.toFixed(1)}</td>
+      <td class="${desvClass(dvL)}">${dvL>0?'+':''}${dpL.toFixed(1)}%</td>
     </tr>`;
   });
-
-  // Fila TOTAL
-  const fv=(v,sign=true)=>(sign&&v>0?'+':'')+v.toFixed(1)+' M';
-  const dvTY=tot.actY-tot.aopY, dvTaY=tot.actY-tot.antY;
-  const dvTF=tot.actF-tot.aopF, dvTaF=tot.actF-tot.antF;
-  const dvTL=tot.actL-tot.aopL, dvTaL=tot.actL-tot.antL;
+  // Fila total
+  const dvTY=totals.marY-totals.febY, dpTY=totals.febY?dvTY/totals.febY*100:0;
+  const dvTG=totals.marG-totals.febG, dpTG=totals.febG?dvTG/totals.febG*100:0;
+  const dvTL=totals.marL-totals.febL, dpTL=totals.febL?dvTL/totals.febL*100:0;
   html += `<tr class="total-row">
     <td>TOTAL</td>
-    <td>${fm(tot.aopY)}</td><td>${D.tiene_ant?fm(tot.antY):'-'}</td><td>${fm(tot.actY)}</td>
-    <td class="${desvClass(dvTY)}">${fv(dvTY)}</td><td class="${desvClass(dvTaY)}">${D.tiene_ant?fv(dvTaY):'-'}</td>
-    <td>${fm(tot.aopF)}</td><td>${D.tiene_ant?fm(tot.antF):'-'}</td><td>${fm(tot.actF)}</td>
-    <td class="${desvClass(dvTF)}">${fv(dvTF)}</td><td class="${desvClass(dvTaF)}">${D.tiene_ant?fv(dvTaF):'-'}</td>
-    <td>${fm(tot.aopL)}</td><td>${D.tiene_ant?fm(tot.antL):'-'}</td><td>${fm(tot.actL)}</td>
-    <td class="${desvClass(dvTL)}">${fv(dvTL)}</td><td class="${desvClass(dvTaL)}">${D.tiene_ant?fv(dvTaL):'-'}</td>
+    <td>${fm(totals.febY)}</td><td>${fm(totals.marY)}</td>
+    <td class="${desvClass(dvTY)}">${dvTY>0?'+':''}${dvTY.toFixed(1)}</td>
+    <td class="${desvClass(dvTY)}">${dvTY>0?'+':''}${dpTY.toFixed(1)}%</td>
+    <td>${fm(totals.febG)}</td><td>${fm(totals.marG)}</td>
+    <td class="${desvClass(dvTG)}">${dvTG>0?'+':''}${dvTG.toFixed(1)}</td>
+    <td class="${desvClass(dvTG)}">${dvTG>0?'+':''}${dpTG.toFixed(1)}%</td>
+    <td>${fm(totals.febL)}</td><td>${fm(totals.marL)}</td>
+    <td class="${desvClass(dvTL)}">${dvTL>0?'+':''}${dvTL.toFixed(1)}</td>
+    <td class="${desvClass(dvTL)}">${dvTL>0?'+':''}${dpTL.toFixed(1)}%</td>
   </tr>`;
   tbody.innerHTML = html;
 }
+
+// ================================================================
+// TAB: L\u00cdNEAS CAPEX (nuevo Equipos Detalle creativo)
+// ================================================================
+let lcPeriod    = 'full';   // ytd | ytg | full
+let lcMensualEsc = 'fcst';  // aop | fcst | feb
+
+function lcPeriodLabel(){
+  if(lcPeriod==='ytd')  return D.meses_ytd&&D.meses_ytd.length ? 'YTD \u2014 '+D.meses_ytd.join(' / ') : 'YTD';
+  if(lcPeriod==='ytg')  return D.meses_ytg&&D.meses_ytg.length ? 'YTG \u2014 '+D.meses_ytg[0]+'\u2192'+D.meses_ytg[D.meses_ytg.length-1] : 'YTG';
+  return 'A\u00f1o Completo';
+}
+function lcVal(r,esc,p){ return r[esc+'_'+p]||0; }
+
+function lcSetPeriod(p, btn){
+  lcPeriod = p;
+  document.querySelectorAll('#lc-pill-bar .lc-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  lcRenderCards();
+  lcRenderMain();
+}
+function lcSetMensualEsc(e, btn){
+  lcMensualEsc = e;
+  document.querySelectorAll('#tab-equipos_full .lc-pill').forEach(b=>{
+    if(['lc-me-fcst','lc-me-aop','lc-me-feb'].includes(b.id)) b.classList.remove('active');
+  });
+  btn.classList.add('active');
+  lcRenderMensual();
+}
+
+function lcRenderCards(){
+  const lineas = D.tabla_lineas || [];
+  const el = document.getElementById('lc-cards');
+  if(!el) return;
+  const p = lcPeriod;
+  const lbl = lcPeriodLabel();
+  el.innerHTML = lineas.map(r=>{
+    const fcst = lcVal(r,'fcst',p);
+    const aop  = lcVal(r,'aop',p);
+    const feb  = lcVal(r,'feb',p);
+    const dvAop = fcst-aop;
+    const dvFeb = fcst-feb;
+    const dvPct = aop ? dvAop/aop*100 : 0;
+    const bCls  = dvAop>0.5?'pos':dvAop<-0.5?'neg':'neu';
+    return `<div class="lc-card">
+      <div class="lc-name" title="${r.linea}">${r.linea}</div>
+      <div class="lc-val">${fm(fcst)}</div>
+      <div class="lc-sub">${D.sel_fcst} \u2014 ${lbl}</div>
+      <div class="lc-badge ${bCls}">${dvAop>0?'+':''}${dvAop.toFixed(1)} M vs AOP (${dvPct>0?'+':''}${dvPct.toFixed(1)}%)</div>
+      ${D.tiene_ant?`<div class="lc-sub" style="margin-top:4px;font-size:.65rem">vs ${D.sel_fcst_ant}: ${dvFeb>0?'+':''}${dvFeb.toFixed(1)} M</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function lcRenderMain(){
+  const lineas = D.tabla_lineas || [];
+  const p = lcPeriod;
+  const lbl = lcPeriodLabel();
+  const tblTitle = document.getElementById('lc-tbl-title');
+  if(tblTitle) tblTitle.textContent = `L\u00edneas Capex \u2014 ${D.sel_aop} vs ${D.sel_fcst} \u2014 ${lbl}`;
+  ['lc-th-aop'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=`${D.sel_aop} (M)`; });
+  ['lc-th-fcst'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=`${D.sel_fcst} (M)`; });
+  ['lc-th-feb'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=D.tiene_ant?`${D.sel_fcst_ant} (M)`:'Sin ant.'; });
+  const lbl_period = document.getElementById('lc-period-label');
+  if(lbl_period) lbl_period.textContent = lbl;
+
+  let totAop=0,totFcst=0,totFeb=0;
+  let rows = lineas.map(r=>{
+    const aop  = lcVal(r,'aop',p);
+    const fcst = lcVal(r,'fcst',p);
+    const feb  = lcVal(r,'feb',p);
+    const dvA  = fcst-aop;
+    const dpA  = aop ? dvA/aop*100 : 0;
+    const dvF  = fcst-feb;
+    const dpF  = feb ? dvF/feb*100 : 0;
+    totAop+=aop; totFcst+=fcst; totFeb+=feb;
+    const isZero = aop===0 && fcst===0;
+    return `<tr style="${isZero?'opacity:.38':''}">
+      <td class="cat-col">${r.linea}</td>
+      <td>${fm(aop)}</td>
+      <td>${fm(fcst)}</td>
+      <td class="${desvClass(dvA)}">${dvA>0?'+':''}${dvA.toFixed(1)}</td>
+      <td class="${desvClass(dvA)}">${dvA>0?'+':''}${dpA.toFixed(1)}%</td>
+      <td>${D.tiene_ant?fm(feb):'-'}</td>
+      <td class="${D.tiene_ant?desvClass(dvF):''}">  ${D.tiene_ant?(dvF>0?'+':'')+ dvF.toFixed(1):'-'}</td>
+      <td class="${D.tiene_ant?desvClass(dvF):''}">  ${D.tiene_ant?(dvF>0?'+':'')+ dpF.toFixed(1)+'%':'-'}</td>
+    </tr>`;
+  }).join('');
+
+  const dvTA=totFcst-totAop, dpTA=totAop?dvTA/totAop*100:0;
+  const dvTF=totFcst-totFeb, dpTF=totFeb?dvTF/totFeb*100:0;
+  const foot = `<tr class="total-row">
+    <td>TOTAL</td>
+    <td>${fm(totAop)}</td><td>${fm(totFcst)}</td>
+    <td class="${desvClass(dvTA)}">${dvTA>0?'+':''}${dvTA.toFixed(1)}</td>
+    <td class="${desvClass(dvTA)}">${dvTA>0?'+':''}${dpTA.toFixed(1)}%</td>
+    <td>${D.tiene_ant?fm(totFeb):'-'}</td>
+    <td class="${D.tiene_ant?desvClass(dvTF):''}">  ${D.tiene_ant?(dvTF>0?'+':'')+ dvTF.toFixed(1):'-'}</td>
+    <td class="${D.tiene_ant?desvClass(dvTF):''}">  ${D.tiene_ant?(dvTF>0?'+':'')+ dpTF.toFixed(1)+'%':'-'}</td>
+  </tr>`;
+
+  const tbody = document.getElementById('lc-tbody');
+  const tfoot = document.getElementById('lc-tfoot');
+  if(tbody) tbody.innerHTML = rows;
+  if(tfoot) tfoot.innerHTML = foot;
+}
+
+function lcRenderMensual(){
+  const mens  = D.tabla_mensual || [];
+  const meses = D.meses_es || [];
+  const esc   = lcMensualEsc;
+  const escNm = esc==='fcst'?D.sel_fcst : esc==='aop'?D.sel_aop : (D.sel_fcst_ant||'FCST Ant.');
+  const useHeat = document.getElementById('lc-heat-chk')?.checked;
+  const legend  = document.getElementById('lc-heat-legend');
+  if(legend) legend.style.display = useHeat?'flex':'none';
+
+  // Calcular m\u00e1ximos por fila para heatmap relativo
+  const rowMaxMap = {};
+  mens.forEach(r=>{
+    rowMaxMap[r.linea] = Math.max(...meses.map(m=>(r[m]&&r[m][esc])||0), 0.001);
+  });
+  // M\u00e1ximo global para heatmap de totales
+  const totales = meses.map(m=>mens.reduce((s,r)=>(r[m]&&r[m][esc])||0+s,0));
+  const totMax  = Math.max(...totales, 0.001);
+
+  function hmCls(v, max){
+    if(v===0) return 'hm-zero';
+    const pct=v/max;
+    if(pct<0.1) return 'hm-0';
+    if(pct<0.25) return 'hm-1';
+    if(pct<0.5)  return 'hm-2';
+    if(pct<0.8)  return 'hm-3';
+    return 'hm-4';
+  }
+
+  // Cabecera
+  const ytdMes = new Set(D.meses_ytd||[]);
+  const headHtml = meses.map(m=>{
+    const isYtd = ytdMes.has(m);
+    return `<th style="font-size:.72rem;font-weight:700;text-align:center;background:${isYtd?'#EBF3FF':'#FFF9E6'};color:${isYtd?'#1565C0':'#BF6000'};white-space:nowrap">${m}</th>`;
+  }).join('');
+  const thead = document.getElementById('lc-mensual-head');
+  if(thead) thead.innerHTML = `<tr><th class="dim-hdr">${escNm}</th>${headHtml}<th style="background:#002244;color:#FFC220;font-size:.72rem">Total A\u00f1o</th></tr>`;
+
+  // Cuerpo
+  let totPorMes = {}; meses.forEach(m=>totPorMes[m]=0);
+  let totalAnio = 0;
+  let bodyHtml = mens.map(r=>{
+    let rowTotal=0;
+    const cells = meses.map(m=>{
+      const v=(r[m]&&r[m][esc])||0;
+      rowTotal+=v; totPorMes[m]+=v;
+      const cls = useHeat ? hmCls(v,rowMaxMap[r.linea]) : '';
+      return `<td class="${cls}" style="text-align:right;font-size:.76rem;padding:4px 8px">${v===0?'\u2014':(v<0.005?'<0.1':v.toFixed(1))}</td>`;
+    }).join('');
+    totalAnio += rowTotal;
+    const rowIsZero = rowTotal===0;
+    const totCls = useHeat ? hmCls(rowTotal,totMax*mens.length) : '';
+    return `<tr style="${rowIsZero?'opacity:.35':''}">
+      <td class="cat-col">${r.linea}</td>${cells}
+      <td class="${totCls}" style="text-align:right;font-weight:700;font-size:.78rem;padding:4px 8px">${rowTotal.toFixed(1)}</td>
+    </tr>`;
+  }).join('');
+
+  // Pie totales
+  const footCells = meses.map(m=>{
+    const v=totPorMes[m];
+    const cls = useHeat ? hmCls(v,totMax) : '';
+    return `<td class="${cls}" style="text-align:right;font-weight:700;font-size:.76rem;padding:4px 8px">${v.toFixed(1)}</td>`;
+  }).join('');
+
+  const tbody = document.getElementById('lc-mensual-body');
+  const tfoot = document.getElementById('lc-mensual-foot');
+  if(tbody) tbody.innerHTML = bodyHtml;
+  if(tfoot) tfoot.innerHTML = `<tr class="total-row"><td>TOTAL MES</td>${footCells}<td style="text-align:right;font-weight:800">${totalAnio.toFixed(1)}</td></tr>`;
+}
+
+function renderLineasCapex(){
+  lcRenderCards();
+  lcRenderMain();
+  lcRenderMensual();
+}
+
+buildAntTab();
+renderLineasCapex();
+
+
 
 buildAntTab();
 renderEquiposDetalle();

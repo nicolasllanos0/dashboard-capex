@@ -348,9 +348,9 @@ body{background:#F4F6F9;color:#1A1A2E}
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">
     <span style="font-weight:700;color:#003F87;font-size:.9rem">Ver per&iacute;odo:</span>
     <div id="lc-pill-bar" style="display:flex;gap:8px">
-      <button class="lc-pill active" onclick="lcSetPeriod('ytd',this)" id="lc-pill-ytd">YTD</button>
-      <button class="lc-pill"        onclick="lcSetPeriod('ytg',this)" id="lc-pill-ytg">YTG</button>
-      <button class="lc-pill"        onclick="lcSetPeriod('full',this)" id="lc-pill-full">A&ntilde;o Completo</button>
+      <button class="lc-pill"        onclick="lcSetPeriod('ytd',this)"  id="lc-pill-ytd">YTD</button>
+      <button class="lc-pill"        onclick="lcSetPeriod('ytg',this)"  id="lc-pill-ytg">YTG</button>
+      <button class="lc-pill active" onclick="lcSetPeriod('full',this)" id="lc-pill-full">A&ntilde;o Completo</button>
     </div>
     <span id="lc-period-label" style="font-size:.78rem;color:#888;margin-left:8px"></span>
   </div>
@@ -1032,185 +1032,226 @@ function buildAntTab() {
 }
 
 // ================================================================
-// TAB: L\u00cdNEAS CAPEX (nuevo Equipos Detalle creativo)
+// TAB: LINEAS CAPEX
 // ================================================================
-let lcPeriod    = 'full';   // ytd | ytg | full
-let lcMensualEsc = 'fcst';  // aop | fcst | feb
+var lcPeriod     = 'full';  // ytd | ytg | full
+var lcMensualEsc = 'fcst';  // aop | fcst | feb
 
-function lcPeriodLabel(){
-  if(lcPeriod==='ytd')  return D.meses_ytd&&D.meses_ytd.length ? 'YTD \u2014 '+D.meses_ytd.join(' / ') : 'YTD';
-  if(lcPeriod==='ytg')  return D.meses_ytg&&D.meses_ytg.length ? 'YTG \u2014 '+D.meses_ytg[0]+'\u2192'+D.meses_ytg[D.meses_ytg.length-1] : 'YTG';
-  return 'A\u00f1o Completo';
+function lcPeriodLabel() {
+  var ytd = D.meses_ytd || [];
+  var ytg = D.meses_ytg || [];
+  if (lcPeriod === 'ytd') return ytd.length ? 'YTD — ' + ytd.join(' / ') : 'YTD';
+  if (lcPeriod === 'ytg') return ytg.length ? 'YTG — ' + ytg[0] + ' → ' + ytg[ytg.length-1] : 'YTG';
+  return 'Año Completo';
 }
-function lcVal(r,esc,p){ return r[esc+'_'+p]||0; }
 
-function lcSetPeriod(p, btn){
+function lcVal(r, esc, p) {
+  var v = r[esc + '_' + p];
+  return (v === undefined || v === null) ? 0 : Number(v) || 0;
+}
+
+function lcSetPeriod(p, btn) {
   lcPeriod = p;
-  document.querySelectorAll('#lc-pill-bar .lc-pill').forEach(b=>b.classList.remove('active'));
+  var pills = document.querySelectorAll('#lc-pill-bar .lc-pill');
+  for (var i = 0; i < pills.length; i++) pills[i].classList.remove('active');
   btn.classList.add('active');
   lcRenderCards();
   lcRenderMain();
 }
-function lcSetMensualEsc(e, btn){
+
+function lcSetMensualEsc(e, btn) {
   lcMensualEsc = e;
-  document.querySelectorAll('#tab-equipos_full .lc-pill').forEach(b=>{
-    if(['lc-me-fcst','lc-me-aop','lc-me-feb'].includes(b.id)) b.classList.remove('active');
-  });
+  var ids = ['lc-me-fcst','lc-me-aop','lc-me-feb'];
+  for (var i = 0; i < ids.length; i++) {
+    var b = document.getElementById(ids[i]);
+    if (b) b.classList.remove('active');
+  }
   btn.classList.add('active');
   lcRenderMensual();
 }
 
-function lcRenderCards(){
-  const lineas = D.tabla_lineas || [];
-  const el = document.getElementById('lc-cards');
-  if(!el) return;
-  const p = lcPeriod;
-  const lbl = lcPeriodLabel();
-  el.innerHTML = lineas.map(r=>{
-    const fcst = lcVal(r,'fcst',p);
-    const aop  = lcVal(r,'aop',p);
-    const feb  = lcVal(r,'feb',p);
-    const dvAop = fcst-aop;
-    const dvFeb = fcst-feb;
-    const dvPct = aop ? dvAop/aop*100 : 0;
-    const bCls  = dvAop>0.5?'pos':dvAop<-0.5?'neg':'neu';
-    return `<div class="lc-card">
-      <div class="lc-name" title="${r.linea}">${r.linea}</div>
-      <div class="lc-val">${fm(fcst)}</div>
-      <div class="lc-sub">${D.sel_fcst} \u2014 ${lbl}</div>
-      <div class="lc-badge ${bCls}">${dvAop>0?'+':''}${dvAop.toFixed(1)} M vs AOP (${dvPct>0?'+':''}${dvPct.toFixed(1)}%)</div>
-      ${D.tiene_ant?`<div class="lc-sub" style="margin-top:4px;font-size:.65rem">vs ${D.sel_fcst_ant}: ${dvFeb>0?'+':''}${dvFeb.toFixed(1)} M</div>`:''}
-    </div>`;
-  }).join('');
+function lcRenderCards() {
+  try {
+    var lineas = D.tabla_lineas || [];
+    var el = document.getElementById('lc-cards');
+    if (!el) return;
+    var p   = lcPeriod;
+    var lbl = lcPeriodLabel();
+    var html = '';
+    for (var i = 0; i < lineas.length; i++) {
+      var r    = lineas[i];
+      var fcst = lcVal(r,'fcst',p);
+      var aop  = lcVal(r,'aop', p);
+      var feb  = lcVal(r,'feb', p);
+      var dvAop = fcst - aop;
+      var dvFeb = fcst - feb;
+      var dvPct = aop ? dvAop/aop*100 : 0;
+      var bCls  = dvAop>0.5 ? 'pos' : dvAop<-0.5 ? 'neg' : 'neu';
+      var antLine = D.tiene_ant
+        ? '<div class="lc-sub" style="margin-top:4px;font-size:.65rem">vs ' + D.sel_fcst_ant + ': ' + (dvFeb>0?'+':'') + dvFeb.toFixed(1) + ' M</div>'
+        : '';
+      html += '<div class="lc-card">';
+      html += '<div class="lc-name" title="' + r.linea + '">' + r.linea + '</div>';
+      html += '<div class="lc-val">' + fm(fcst) + '</div>';
+      html += '<div class="lc-sub">' + D.sel_fcst + ' — ' + lbl + '</div>';
+      html += '<div class="lc-badge ' + bCls + '">' + (dvAop>0?'+':'') + dvAop.toFixed(1) + ' M vs AOP (' + (dvPct>0?'+':'') + dvPct.toFixed(1) + '%)</div>';
+      html += antLine;
+      html += '</div>';
+    }
+    el.innerHTML = html;
+  } catch(err) { console.error('lcRenderCards:', err); }
 }
 
-function lcRenderMain(){
-  const lineas = D.tabla_lineas || [];
-  const p = lcPeriod;
-  const lbl = lcPeriodLabel();
-  const tblTitle = document.getElementById('lc-tbl-title');
-  if(tblTitle) tblTitle.textContent = `L\u00edneas Capex \u2014 ${D.sel_aop} vs ${D.sel_fcst} \u2014 ${lbl}`;
-  ['lc-th-aop'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=`${D.sel_aop} (M)`; });
-  ['lc-th-fcst'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=`${D.sel_fcst} (M)`; });
-  ['lc-th-feb'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=D.tiene_ant?`${D.sel_fcst_ant} (M)`:'Sin ant.'; });
-  const lbl_period = document.getElementById('lc-period-label');
-  if(lbl_period) lbl_period.textContent = lbl;
+function lcRenderMain() {
+  try {
+    var lineas = D.tabla_lineas || [];
+    var p   = lcPeriod;
+    var lbl = lcPeriodLabel();
+    var tblTitle = document.getElementById('lc-tbl-title');
+    if (tblTitle) tblTitle.textContent = 'Líneas Capex — ' + D.sel_aop + ' vs ' + D.sel_fcst + ' — ' + lbl;
+    var thAop  = document.getElementById('lc-th-aop');  if(thAop)  thAop.textContent  = D.sel_aop + ' (M)';
+    var thFcst = document.getElementById('lc-th-fcst'); if(thFcst) thFcst.textContent = D.sel_fcst + ' (M)';
+    var thFeb  = document.getElementById('lc-th-feb');  if(thFeb)  thFeb.textContent  = D.tiene_ant ? D.sel_fcst_ant + ' (M)' : 'Sin ant.';
+    var lblPer = document.getElementById('lc-period-label'); if(lblPer) lblPer.textContent = lbl;
 
-  let totAop=0,totFcst=0,totFeb=0;
-  let rows = lineas.map(r=>{
-    const aop  = lcVal(r,'aop',p);
-    const fcst = lcVal(r,'fcst',p);
-    const feb  = lcVal(r,'feb',p);
-    const dvA  = fcst-aop;
-    const dpA  = aop ? dvA/aop*100 : 0;
-    const dvF  = fcst-feb;
-    const dpF  = feb ? dvF/feb*100 : 0;
-    totAop+=aop; totFcst+=fcst; totFeb+=feb;
-    const isZero = aop===0 && fcst===0;
-    return `<tr style="${isZero?'opacity:.38':''}">
-      <td class="cat-col">${r.linea}</td>
-      <td>${fm(aop)}</td>
-      <td>${fm(fcst)}</td>
-      <td class="${desvClass(dvA)}">${dvA>0?'+':''}${dvA.toFixed(1)}</td>
-      <td class="${desvClass(dvA)}">${dvA>0?'+':''}${dpA.toFixed(1)}%</td>
-      <td>${D.tiene_ant?fm(feb):'-'}</td>
-      <td class="${D.tiene_ant?desvClass(dvF):''}">  ${D.tiene_ant?(dvF>0?'+':'')+ dvF.toFixed(1):'-'}</td>
-      <td class="${D.tiene_ant?desvClass(dvF):''}">  ${D.tiene_ant?(dvF>0?'+':'')+ dpF.toFixed(1)+'%':'-'}</td>
-    </tr>`;
-  }).join('');
-
-  const dvTA=totFcst-totAop, dpTA=totAop?dvTA/totAop*100:0;
-  const dvTF=totFcst-totFeb, dpTF=totFeb?dvTF/totFeb*100:0;
-  const foot = `<tr class="total-row">
-    <td>TOTAL</td>
-    <td>${fm(totAop)}</td><td>${fm(totFcst)}</td>
-    <td class="${desvClass(dvTA)}">${dvTA>0?'+':''}${dvTA.toFixed(1)}</td>
-    <td class="${desvClass(dvTA)}">${dvTA>0?'+':''}${dpTA.toFixed(1)}%</td>
-    <td>${D.tiene_ant?fm(totFeb):'-'}</td>
-    <td class="${D.tiene_ant?desvClass(dvTF):''}">  ${D.tiene_ant?(dvTF>0?'+':'')+ dvTF.toFixed(1):'-'}</td>
-    <td class="${D.tiene_ant?desvClass(dvTF):''}">  ${D.tiene_ant?(dvTF>0?'+':'')+ dpTF.toFixed(1)+'%':'-'}</td>
-  </tr>`;
-
-  const tbody = document.getElementById('lc-tbody');
-  const tfoot = document.getElementById('lc-tfoot');
-  if(tbody) tbody.innerHTML = rows;
-  if(tfoot) tfoot.innerHTML = foot;
+    var totAop=0, totFcst=0, totFeb=0;
+    var rows = '';
+    for (var i = 0; i < lineas.length; i++) {
+      var r    = lineas[i];
+      var aop  = lcVal(r,'aop', p);
+      var fcst = lcVal(r,'fcst',p);
+      var feb  = lcVal(r,'feb', p);
+      var dvA  = fcst - aop;
+      var dpA  = aop  ? dvA/aop*100  : 0;
+      var dvF  = fcst - feb;
+      var dpF  = feb  ? dvF/feb*100  : 0;
+      totAop += aop; totFcst += fcst; totFeb += feb;
+      var opac = (aop===0 && fcst===0) ? 'opacity:.38;' : '';
+      rows += '<tr style="' + opac + '">';
+      rows += '<td class="cat-col">' + r.linea + '</td>';
+      rows += '<td>' + fm(aop) + '</td>';
+      rows += '<td>' + fm(fcst) + '</td>';
+      rows += '<td class="' + desvClass(dvA) + '">' + (dvA>0?'+':'') + dvA.toFixed(1) + '</td>';
+      rows += '<td class="' + desvClass(dvA) + '">' + (dvA>0?'+':'') + dpA.toFixed(1) + '%</td>';
+      rows += '<td>' + (D.tiene_ant ? fm(feb) : '-') + '</td>';
+      rows += '<td class="' + (D.tiene_ant ? desvClass(dvF) : '') + '">' + (D.tiene_ant ? (dvF>0?'+':'') + dvF.toFixed(1) : '-') + '</td>';
+      rows += '<td class="' + (D.tiene_ant ? desvClass(dvF) : '') + '">' + (D.tiene_ant ? (dvF>0?'+':'') + dpF.toFixed(1) + '%' : '-') + '</td>';
+      rows += '</tr>';
+    }
+    var dvTA = totFcst-totAop, dpTA = totAop ? dvTA/totAop*100 : 0;
+    var dvTF = totFcst-totFeb, dpTF = totFeb ? dvTF/totFeb*100 : 0;
+    var foot = '<tr class="total-row">';
+    foot += '<td>TOTAL</td>';
+    foot += '<td>' + fm(totAop) + '</td><td>' + fm(totFcst) + '</td>';
+    foot += '<td class="' + desvClass(dvTA) + '">' + (dvTA>0?'+':'') + dvTA.toFixed(1) + '</td>';
+    foot += '<td class="' + desvClass(dvTA) + '">' + (dvTA>0?'+':'') + dpTA.toFixed(1) + '%</td>';
+    foot += '<td>' + (D.tiene_ant ? fm(totFeb) : '-') + '</td>';
+    foot += '<td class="' + (D.tiene_ant ? desvClass(dvTF) : '') + '">' + (D.tiene_ant ? (dvTF>0?'+':'') + dvTF.toFixed(1) : '-') + '</td>';
+    foot += '<td class="' + (D.tiene_ant ? desvClass(dvTF) : '') + '">' + (D.tiene_ant ? (dvTF>0?'+':'') + dpTF.toFixed(1) + '%' : '-') + '</td>';
+    foot += '</tr>';
+    var tbody = document.getElementById('lc-tbody');
+    var tfoot = document.getElementById('lc-tfoot');
+    if (tbody) tbody.innerHTML = rows;
+    if (tfoot) tfoot.innerHTML = foot;
+  } catch(err) { console.error('lcRenderMain:', err); }
 }
 
-function lcRenderMensual(){
-  const mens  = D.tabla_mensual || [];
-  const meses = D.meses_es || [];
-  const esc   = lcMensualEsc;
-  const escNm = esc==='fcst'?D.sel_fcst : esc==='aop'?D.sel_aop : (D.sel_fcst_ant||'FCST Ant.');
-  const useHeat = document.getElementById('lc-heat-chk')?.checked;
-  const legend  = document.getElementById('lc-heat-legend');
-  if(legend) legend.style.display = useHeat?'flex':'none';
+function lcRenderMensual() {
+  try {
+    var mens  = D.tabla_mensual || [];
+    var meses = D.meses_es || [];
+    var esc   = lcMensualEsc;
+    var escNm = esc==='fcst' ? D.sel_fcst : esc==='aop' ? D.sel_aop : (D.sel_fcst_ant||'FCST Ant.');
+    var chk   = document.getElementById('lc-heat-chk');
+    var useHeat = chk ? chk.checked : true;
+    var legend  = document.getElementById('lc-heat-legend');
+    if (legend) legend.style.display = useHeat ? 'flex' : 'none';
 
-  // Calcular m\u00e1ximos por fila para heatmap relativo
-  const rowMaxMap = {};
-  mens.forEach(r=>{
-    rowMaxMap[r.linea] = Math.max(...meses.map(m=>(r[m]&&r[m][esc])||0), 0.001);
-  });
-  // M\u00e1ximo global para heatmap de totales
-  const totales = meses.map(m=>mens.reduce((s,r)=>(r[m]&&r[m][esc])||0+s,0));
-  const totMax  = Math.max(...totales, 0.001);
+    // Maximos por fila
+    var rowMax = {};
+    for (var i = 0; i < mens.length; i++) {
+      var r = mens[i]; var mx = 0.001;
+      for (var j = 0; j < meses.length; j++) {
+        var m = meses[j];
+        var v = (r[m] && r[m][esc]) ? Number(r[m][esc]) : 0;
+        if (v > mx) mx = v;
+      }
+      rowMax[r.linea] = mx;
+    }
+    // Maximo global (sumas por mes)
+    var totPorMes = {}; var totMax = 0.001;
+    for (var j = 0; j < meses.length; j++) {
+      var m = meses[j]; var s = 0;
+      for (var i = 0; i < mens.length; i++) {
+        var v = (mens[i][m] && mens[i][m][esc]) ? Number(mens[i][m][esc]) : 0;
+        s += v;
+      }
+      totPorMes[m] = s;
+      if (s > totMax) totMax = s;
+    }
 
-  function hmCls(v, max){
-    if(v===0) return 'hm-zero';
-    const pct=v/max;
-    if(pct<0.1) return 'hm-0';
-    if(pct<0.25) return 'hm-1';
-    if(pct<0.5)  return 'hm-2';
-    if(pct<0.8)  return 'hm-3';
-    return 'hm-4';
-  }
+    function hmCls(v, max) {
+      if (v === 0) return 'hm-zero';
+      var pct = v / max;
+      if (pct < 0.1)  return 'hm-0';
+      if (pct < 0.25) return 'hm-1';
+      if (pct < 0.5)  return 'hm-2';
+      if (pct < 0.8)  return 'hm-3';
+      return 'hm-4';
+    }
 
-  // Cabecera
-  const ytdMes = new Set(D.meses_ytd||[]);
-  const headHtml = meses.map(m=>{
-    const isYtd = ytdMes.has(m);
-    return `<th style="font-size:.72rem;font-weight:700;text-align:center;background:${isYtd?'#EBF3FF':'#FFF9E6'};color:${isYtd?'#1565C0':'#BF6000'};white-space:nowrap">${m}</th>`;
-  }).join('');
-  const thead = document.getElementById('lc-mensual-head');
-  if(thead) thead.innerHTML = `<tr><th class="dim-hdr">${escNm}</th>${headHtml}<th style="background:#002244;color:#FFC220;font-size:.72rem">Total A\u00f1o</th></tr>`;
+    // Cabecera
+    var ytdSet = {}; var ytdArr = D.meses_ytd || [];
+    for (var i = 0; i < ytdArr.length; i++) ytdSet[ytdArr[i]] = true;
+    var headHtml = '';
+    for (var j = 0; j < meses.length; j++) {
+      var m = meses[j];
+      var isYtd = !!ytdSet[m];
+      var bg  = isYtd ? '#EBF3FF' : '#FFF9E6';
+      var clr = isYtd ? '#1565C0' : '#BF6000';
+      headHtml += '<th style="font-size:.72rem;font-weight:700;text-align:center;background:' + bg + ';color:' + clr + ';white-space:nowrap">' + m + '</th>';
+    }
+    var thead = document.getElementById('lc-mensual-head');
+    if (thead) thead.innerHTML = '<tr><th class="dim-hdr">' + escNm + '</th>' + headHtml + '<th style="background:#002244;color:#FFC220;font-size:.72rem">Total Año</th></tr>';
 
-  // Cuerpo
-  let totPorMes = {}; meses.forEach(m=>totPorMes[m]=0);
-  let totalAnio = 0;
-  let bodyHtml = mens.map(r=>{
-    let rowTotal=0;
-    const cells = meses.map(m=>{
-      const v=(r[m]&&r[m][esc])||0;
-      rowTotal+=v; totPorMes[m]+=v;
-      const cls = useHeat ? hmCls(v,rowMaxMap[r.linea]) : '';
-      return `<td class="${cls}" style="text-align:right;font-size:.76rem;padding:4px 8px">${v===0?'\u2014':(v<0.005?'<0.1':v.toFixed(1))}</td>`;
-    }).join('');
-    totalAnio += rowTotal;
-    const rowIsZero = rowTotal===0;
-    const totCls = useHeat ? hmCls(rowTotal,totMax*mens.length) : '';
-    return `<tr style="${rowIsZero?'opacity:.35':''}">
-      <td class="cat-col">${r.linea}</td>${cells}
-      <td class="${totCls}" style="text-align:right;font-weight:700;font-size:.78rem;padding:4px 8px">${rowTotal.toFixed(1)}</td>
-    </tr>`;
-  }).join('');
+    // Cuerpo
+    var bodyHtml = ''; var totalAnio = 0;
+    for (var i = 0; i < mens.length; i++) {
+      var r = mens[i]; var rowTotal = 0;
+      var cells = '';
+      for (var j = 0; j < meses.length; j++) {
+        var m = meses[j];
+        var v = (r[m] && r[m][esc]) ? Number(r[m][esc]) : 0;
+        rowTotal += v;
+        var cls = useHeat ? hmCls(v, rowMax[r.linea]) : '';
+        var txt = v === 0 ? '—' : (v < 0.005 ? '<0.1' : v.toFixed(1));
+        cells += '<td class="' + cls + '" style="text-align:right;font-size:.76rem;padding:4px 8px">' + txt + '</td>';
+      }
+      totalAnio += rowTotal;
+      var rowOpac = rowTotal === 0 ? 'opacity:.35;' : '';
+      var totCls  = useHeat ? hmCls(rowTotal, totMax) : '';
+      bodyHtml += '<tr style="' + rowOpac + '"><td class="cat-col">' + r.linea + '</td>' + cells;
+      bodyHtml += '<td class="' + totCls + '" style="text-align:right;font-weight:700;font-size:.78rem;padding:4px 8px">' + rowTotal.toFixed(1) + '</td></tr>';
+    }
 
-  // Pie totales
-  const footCells = meses.map(m=>{
-    const v=totPorMes[m];
-    const cls = useHeat ? hmCls(v,totMax) : '';
-    return `<td class="${cls}" style="text-align:right;font-weight:700;font-size:.76rem;padding:4px 8px">${v.toFixed(1)}</td>`;
-  }).join('');
-
-  const tbody = document.getElementById('lc-mensual-body');
-  const tfoot = document.getElementById('lc-mensual-foot');
-  if(tbody) tbody.innerHTML = bodyHtml;
-  if(tfoot) tfoot.innerHTML = `<tr class="total-row"><td>TOTAL MES</td>${footCells}<td style="text-align:right;font-weight:800">${totalAnio.toFixed(1)}</td></tr>`;
+    // Pie
+    var footCells = '';
+    for (var j = 0; j < meses.length; j++) {
+      var m = meses[j]; var v = totPorMes[m] || 0;
+      var cls = useHeat ? hmCls(v, totMax) : '';
+      footCells += '<td class="' + cls + '" style="text-align:right;font-weight:700;font-size:.76rem;padding:4px 8px">' + v.toFixed(1) + '</td>';
+    }
+    var tbody = document.getElementById('lc-mensual-body');
+    var tfoot = document.getElementById('lc-mensual-foot');
+    if (tbody) tbody.innerHTML = bodyHtml;
+    if (tfoot) tfoot.innerHTML = '<tr class="total-row"><td>TOTAL MES</td>' + footCells + '<td style="text-align:right;font-weight:800">' + totalAnio.toFixed(1) + '</td></tr>';
+  } catch(err) { console.error('lcRenderMensual:', err); }
 }
 
-function renderLineasCapex(){
-  lcRenderCards();
-  lcRenderMain();
-  lcRenderMensual();
+function renderLineasCapex() {
+  try { lcRenderCards();   } catch(e) { console.error('Cards:',   e); }
+  try { lcRenderMain();    } catch(e) { console.error('Main:',    e); }
+  try { lcRenderMensual(); } catch(e) { console.error('Mensual:', e); }
 }
 
 buildAntTab();
